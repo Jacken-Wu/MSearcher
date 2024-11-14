@@ -1,0 +1,96 @@
+#bottom-bar {
+    display: block;
+    position: fixed;
+    width: 100%;
+    height: 130px;
+    background-color: rgb(187, 252, 255);
+    bottom: 0;
+    z-index: 2;
+}
+
+.bottom-empty {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 130px;
+    left: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.left-bottom-button {
+    width: 35.2px;
+    height: 35.2px;
+    display: block;
+    position: absolute;
+    left: 3px;
+    padding: 1px;
+    border-radius: 6px;
+    border-width: 2px;
+    background-size: cover;
+    background-position: center;
+}
+
+#change-img-path {
+    top: 10px;
+    background-image: url(../assets/change_img_path_button.jpg);
+}
+
+#download-img {
+    top: 55px;
+    background-image: url(../assets/download_img_button.jpg);
+}
+
+#search-bar {
+    width: 70%;
+    height: 30px;
+    display: block;
+    position: absolute;
+    left: 10%;
+    top: 10px;
+    background-color: rgb(187, 252, 255);
+}
+
+#rename-bar {
+    width: 70%;
+    height: 30px;
+    display: block;
+    position: absolute;
+    left: 10%;
+    top: 55px;
+    background-color: rgb(187, 252, 255);
+}
+
+.input-box {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    padding: 1px 2px 1px 2px;
+    border-width: 2px;
+}
+
+.config-button {
+    width: 12%;
+    height: 35.2px;
+    display: block;
+    position: absolute;
+    right: 4%;
+    padding: 1px;
+    border-radius: 6px;
+    border-width: 2px;
+    background-color: rgb(218, 240, 255);
+}
+
+.config-button p {
+    font-size: 12px;
+    line-height: 18px;
+    margin: 5px 0 5px 0;
+}
+
+#search-button {
+    top: 10px;
+}
+
+#rename-button {
+    top: 55px;
+}

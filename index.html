@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <title>MSearcher</title>
+    <link rel="stylesheet" href="./style/image.css">
+    <link rel="stylesheet" href="./style/topBar.css">
+    <link rel="stylesheet" href="./style/filterMenu.css">
+    <link rel="stylesheet" href="./style/bottomBar.css">
+    <link rel="stylesheet" href="./style/bottonHover.css">
+    <link rel="stylesheet" href="./style/errorBox.css">
+</head>
+
+<body>
+    <div class="top-empty"></div>
+    <div id="img-container"></div>
+    <div id="top-bar">
+        <button type="button" id="filter-button">
+            <div class="button-cover"></div>
+        </button>
+    </div>
+    <div id="filter-menu">
+        <div id="filter-all" class="filter-menu-button filter-button-first">所有</div>
+        <div id="filter-filtered" class="filter-menu-button">已命名表情包</div>
+        <div id="filter-unfiltered" class="filter-menu-button filter-button-last">未命名表情包</div>
+    </div>
+    <div id="bottom-bar">
+        <button type="button" id="change-img-path" class="left-bottom-button">
+            <div class="button-cover"></div>
+        </button>
+        <button type="button" id="download-img" class="left-bottom-button">
+            <div class="button-cover"></div>
+        </button>
+        <div id="search-bar">
+            <input type="text" id="search-input" class="input-box" placeholder="请输入关键字">
+        </div>
+        <button type="button" id="search-button" class="config-button">
+            <p>搜索</p>
+            <div class="button-cover"></div>
+        </button>
+        <div id="rename-bar">
+            <input type="text" id="rename-input" class="input-box" placeholder="请输入新表情包名">
+        </div>
+        <button type="button" id="rename-button" class="config-button">
+            <p>重命名</p>
+            <div class="button-cover"></div>
+        </button>
+    </div>
+    <div class="bottom-empty"></div>
+    <div id="error-box">
+        <p>重命名失败，未选中表情包或新名称已存在</p>
+    </div>
+    <script src="./renderer.js"></script>
+</body>
+
+</html>

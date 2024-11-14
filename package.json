@@ -1,0 +1,53 @@
+{
+  "name": "meme_searcher",
+  "version": "1.0.0",
+  "description": "Meme Searcher",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build-win64": "npx electron-builder build --win"
+  },
+  "author": "Jacken Wu",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.meme.msearcher",
+    "productName": "MSearcher",
+    "files": [
+      "**/*",
+      "!node_modules",
+      "!build",
+      "!img",
+      "!photoshop",
+      "!config.json"
+    ],
+    "directories": {
+      "output": "build/dist"
+    },
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/uninstall_icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": false,
+      "shortcutName": "MSearcher"
+    }
+  }
+}

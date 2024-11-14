@@ -1,0 +1,44 @@
+#filter-menu {
+    position: fixed;
+    display: none;
+    top: 36px;
+    width: 150px;
+    right: 3px;
+    z-index: 3;
+    background-color: rgb(187, 252, 255);
+    border-radius: 7px;
+    border-width: 2px;
+    border-style: solid;
+    text-align: center;
+}
+
+.filter-menu-button {
+    width: 100%;
+    height: 30px;
+    display: block;
+    position: relative;
+    line-height: 30px;
+    background-color: rgb(218, 253, 255);
+    border-width: 0.5px;
+    border-bottom-style: dashed;
+    user-select: none;
+}
+
+.filter-menu-button:hover {
+    background-color: rgb(198, 236, 239);
+}
+
+.filter-menu-button:active {
+    background-color: rgb(180, 218, 220);
+}
+
+.filter-button-first {
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+}
+
+.filter-button-last {
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    border-bottom-style: none;
+}

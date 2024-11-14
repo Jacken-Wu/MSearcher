@@ -1,0 +1,21 @@
+#error-box {
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 80px;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background-color: rgb(255, 255, 255);
+    border-radius: 7px;
+    z-index: 3;
+    border-width: 0.5px;
+    border-style: solid;
+}
+
+#error-box p {
+    font-size: 12px;
+    line-height: 18px;
+    margin: 22px;
+}
