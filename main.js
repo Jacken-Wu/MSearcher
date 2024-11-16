@@ -36,6 +36,12 @@ function createWindow() {
             click: () => {
                 win.webContents.send('menu-copy-click');
             },
+        },
+        {
+            label: '重命名',
+            click: () => {
+                win.webContents.send('menu-rename-click');
+            },
         }
     ]);
 }

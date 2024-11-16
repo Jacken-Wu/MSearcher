@@ -8,4 +8,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     copyImg: (imgName) => ipcRenderer.invoke('copy-img', imgName),
     menuClick: (arg) => ipcRenderer.send('menu-click', arg),
     menuCopyClick: (func) => ipcRenderer.on('menu-copy-click', func),
+    menuRenameClick: (func) => ipcRenderer.on('menu-rename-click', func),
 })

@@ -12,7 +12,7 @@ const renameButton = document.getElementById('rename-button');
 const downloadImgButton = document.getElementById('download-img');
 const errorBox = document.getElementById('error-box');
 
-let lastDivSelected = null;
+let lastDivSelecteds = null;
 
 filterMenu.style.display = 'none';
 errorBox.style.display = 'none';
@@ -24,7 +24,7 @@ update();
 
 async function update(filterType = 'all', filterTexts = []) {
     // 清除选择
-    lastDivSelected = null;
+    lastDivSelecteds = null;
 
     // 删除所有图片
     const imgDivs = imgContainer.querySelectorAll('.img-div');
@@ -113,18 +113,59 @@ configButton.addEventListener('click', async () => {
     await update(filterTypeBuffer, filterTextsBuffer);
 });
 
-function imgSelect() {
-    // 获取当前div
-    console.log(this.classList);
-    if (lastDivSelected) {
-        lastDivSelected.classList.remove('selected');
+function imgSelect(event) {
+    console.log('imgSelect前：', lastDivSelecteds);
+    if (event.ctrlKey && event.button === 0) {
+        // 按住Ctrl左键单击
+        if (lastDivSelecteds) {
+            if (lastDivSelecteds.includes(this)) {
+                lastDivSelecteds.splice(lastDivSelecteds.indexOf(this), 1);
+                this.classList.remove('selected');
+                if (lastDivSelecteds.length == 0) {
+                    lastDivSelecteds = null;
+                }
+            } else {
+                lastDivSelecteds.push(this);
+                this.classList.add('selected');
+            }
+        } else {
+            lastDivSelecteds = [this];
+            this.classList.add('selected');
+        }
+    } else if (event.button === 0) {
+        // 左键单击
+        if (lastDivSelecteds) {
+            lastDivSelecteds.forEach(div => {
+                div.classList.remove('selected');
+            });
+        }
+        lastDivSelecteds = [this];
+        this.classList.add('selected');
+    } else if (event.button === 2) {
+        // 右键单击
+        // 右键单击非选中项，取消选中
+        if (lastDivSelecteds) {
+            if (lastDivSelecteds.length == 1) {
+                lastDivSelecteds[0].classList.remove('selected');
+                this.classList.add('selected');
+                lastDivSelecteds = [this];
+            } else if (!lastDivSelecteds.includes(this)) {
+                lastDivSelecteds.forEach(div => {
+                    div.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                lastDivSelecteds = [this];
+            }
+        } else {
+            this.classList.add('selected');
+            lastDivSelecteds = [this];
+        }
     }
-    lastDivSelected = this;
-    this.classList.add('selected');
+    console.log('imgSelect后：', lastDivSelecteds);
 }
 
 function contextMenu(event) {
-    imgSelect.call(this);
+    imgSelect.call(this, event);
     const arg = {
         x: event.clientX,
         y: event.clientY
@@ -140,13 +181,21 @@ filterButton.addEventListener('click', () => {
     }
 });
 
-document.body.addEventListener('click', (event) => {
+function closeErrorBox(event) {
     if (!filterButton.contains(event.target) && filterMenu.style.display == 'block' && !filterMenu.contains(event.target)) {
         filterMenu.style.display = 'none';
     }
     if (errorBox.style.display == 'block' && !errorBox.contains(event.target)) {
         errorBox.style.display = 'none';
     }
+}
+
+document.body.addEventListener('click', (event) => {
+    closeErrorBox(event);
+});
+
+document.body.addEventListener('contextmenu', (event) => {
+    closeErrorBox(event);
 });
 
 filterAllButton.addEventListener('click', () => {
@@ -164,7 +213,8 @@ filterUnfilteredButton.addEventListener('click', () => {
     update(filterTypeBuffer, filterTextsBuffer);
 });
 
-searchButton.addEventListener('click', () => {
+searchButton.addEventListener('click', (event) => {
+    event.stopPropagation();
     const searchText = searchInput.value;
     filterTextsBuffer = searchText.split('');
     update(filterTypeBuffer, filterTextsBuffer);
@@ -177,17 +227,48 @@ searchInput.addEventListener('keydown', (event) => {
     }
 });
 
-renameButton.addEventListener('click', async () => {
-    const selectedImg = lastDivSelected.querySelector('img');
-    const oldName = selectedImg.alt;
-    const newName = renameInput.value + oldName.substring(oldName.lastIndexOf("."));
-    console.log(typeof oldName, oldName, typeof newName, newName);
-    const isRenamed = await window.electronAPI.renameImg(oldName, newName);
-    if (isRenamed) {
-        update(filterTypeBuffer, filterTextsBuffer);
-    } else {
-        errorBox.textContent = '重命名失败，未选中表情包或新名称已存在';
+renameButton.addEventListener('click', async (event) => {
+    event.stopPropagation();
+    if (!lastDivSelecteds) {
+        errorBox.getElementsByTagName('p')[0].textContent = '重命名失败，未选中表情包';
         errorBox.style.display = 'block';
+        return;
+    }
+    if (renameInput.value === '') {
+        errorBox.getElementsByTagName('p')[0].textContent = '重命名失败，新名称不能为空';
+        errorBox.style.display = 'block';
+        return;
+    }
+    if (lastDivSelecteds.length == 1) {
+        const selectedImg = lastDivSelecteds[0].querySelector('img');
+        const oldName = selectedImg.alt;
+        const newName = renameInput.value + oldName.substring(oldName.lastIndexOf("."));
+        console.log(oldName, newName);
+        const isRenamed = await window.electronAPI.renameImg(oldName, newName);
+        if (isRenamed) {
+            update(filterTypeBuffer, filterTextsBuffer);
+        } else {
+            errorBox.getElementsByTagName('p')[0].textContent = '重命名失败，新名称已存在';
+            errorBox.style.display = 'block';
+        }
+    } else if (lastDivSelecteds.length > 1) {
+        console.log('批量重命名');
+        let nameCount = 0;
+        console.log(lastDivSelecteds);
+        for (const div of lastDivSelecteds) {
+            console.log('进入for循环');
+            const selectedImg = div.querySelector('img');
+            const oldName = selectedImg.alt;
+            console.log(oldName);
+            let isRenamed = false;
+            do {
+                const newName = renameInput.value + nameCount + oldName.substring(oldName.lastIndexOf("."));
+                console.log(oldName, newName);
+                isRenamed = await window.electronAPI.renameImg(oldName, newName);
+                nameCount += 1;
+            } while (!isRenamed);
+        }
+        update(filterTypeBuffer, filterTextsBuffer);
     }
 });
 
@@ -198,22 +279,33 @@ renameInput.addEventListener('keydown', (event) => {
     }
 });
 
-downloadImgButton.addEventListener('click', async () => {
-    if (lastDivSelected) {
-        const selectedImg = lastDivSelected.querySelector('img');
+window.electronAPI.menuRenameClick(() => {
+    renameButton.click();
+});
+
+downloadImgButton.addEventListener('click', async (event) => {
+    event.stopPropagation();
+    if (!lastDivSelecteds) {
+        errorBox.getElementsByTagName('p')[0].textContent = '复制失败，未选中表情包';
+        errorBox.style.display = 'block';
+        return;
+    }
+    if (lastDivSelecteds.length == 1) {
+        const selectedImg = lastDivSelecteds[0].querySelector('img');
         const imgName = selectedImg.alt;
         window.electronAPI.copyImg(imgName);
     } else {
-        errorBox.textContent = '未选中表情包';
+        errorBox.getElementsByTagName('p')[0].textContent = '复制失败，无法同时复制多个表情包';
         errorBox.style.display = 'block';
     }
 });
 
-window.electronAPI.menuCopyClick(async () => {
+window.electronAPI.menuCopyClick(() => {
     downloadImgButton.click();
 });
 
 document.body.addEventListener('keydown', (event) => {
+    closeErrorBox(event);
     if (event.ctrlKey && event.key === 'c') {
         downloadImgButton.click();
     }
