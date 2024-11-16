@@ -1,10 +1,10 @@
-const {app, BrowserWindow, ipcMain, dialog, clipboard, nativeImage } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, clipboard, nativeImage, Menu } = require('electron')
 const path = require('path')
 const fs = require('fs');
 
 const configPath = path.join(getUserdataPath(), 'config.json');
 
-function createWindow () {
+function createWindow() {
     const win = new BrowserWindow({
         width: 800,//窗口宽度
         minWidth: 400,//最小窗口宽度
@@ -15,8 +15,9 @@ function createWindow () {
         x: 0,//窗口位置x坐标
         y: 0,//窗口位置y坐标
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js')//预加载脚本
-        }
+            preload: path.join(__dirname, 'preload.js'),//预加载脚本
+        },
+        enableRemoteModule: true
     });
 
     ipcMain.handle('get-images', getImgList);
@@ -24,9 +25,19 @@ function createWindow () {
     ipcMain.handle('update-img-path', updateImgPath);
     ipcMain.handle('rename-img', renameImg);
     ipcMain.handle('copy-img', copyImg);
+    ipcMain.on('menu-click', (event, arg) => { menu.popup({ x: arg.x, y: arg.y }) });
 
     win.loadFile('./index.html');
     // win.openDevTools();
+
+    const menu = Menu.buildFromTemplate([
+        {
+            label: '复制',
+            click: () => {
+                win.webContents.send('menu-copy-click');
+            },
+        }
+    ]);
 }
 
 function initConfig() {
@@ -91,6 +102,7 @@ function changeConfig(key, value) {
 }
 
 function getImgPath() {
+    // 获取图片文件夹路径
     const config = readConfig();
     const imgPath = config.img_path;
     console.log('Img_path: ', imgPath);
@@ -98,6 +110,7 @@ function getImgPath() {
 }
 
 function getImgList() {
+    // 获取图片名列表
     const imgPath = getImgPath();
 
     try {
@@ -111,6 +124,7 @@ function getImgList() {
 }
 
 async function updateImgPath() {
+    // 选择图片文件夹
     const result = await dialog.showOpenDialog({
         properties: ['openDirectory', 'dontAddToRecent'],
     });

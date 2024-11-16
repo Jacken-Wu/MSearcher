@@ -71,7 +71,7 @@ async function update(filterType = 'all', filterTexts = []) {
         if (isFiltered) {
             imgListFiltered.push(img);
         }
-    })
+    });
     console.log(imgListFiltered);
 
     // 获取图片目录
@@ -90,6 +90,7 @@ async function update(filterType = 'all', filterTexts = []) {
         imgDivElement.classList.add('img-div');
         imgDivElement.id = 'img-div-' + idCounter;
         imgDivElement.addEventListener('click', imgSelect);
+        imgDivElement.addEventListener('contextmenu', contextMenu);
 
         const imgOuterElement = imgDivElement.appendChild(document.createElement('div'));
         imgOuterElement.classList.add('img-outer');
@@ -115,15 +116,20 @@ configButton.addEventListener('click', async () => {
 function imgSelect() {
     // 获取当前div
     console.log(this.classList);
-    if (this.classList.contains('selected')) {
-        console.log('d');
-        downloadImgButton.click();
-        this.classList.remove('selected');
-    } else if (lastDivSelected) {
+    if (lastDivSelected) {
         lastDivSelected.classList.remove('selected');
     }
     lastDivSelected = this;
     this.classList.add('selected');
+}
+
+function contextMenu(event) {
+    imgSelect.call(this);
+    const arg = {
+        x: event.clientX,
+        y: event.clientY
+    }
+    window.electronAPI.menuClick(arg);
 }
 
 filterButton.addEventListener('click', () => {
@@ -164,7 +170,8 @@ searchButton.addEventListener('click', () => {
     update(filterTypeBuffer, filterTextsBuffer);
 });
 
-searchInput.addEventListener('keyup', (event) => {
+searchInput.addEventListener('keydown', (event) => {
+    event.stopPropagation();
     if (event.keyCode === 13) {
         searchButton.click();
     }
@@ -179,18 +186,35 @@ renameButton.addEventListener('click', async () => {
     if (isRenamed) {
         update(filterTypeBuffer, filterTextsBuffer);
     } else {
+        errorBox.textContent = '重命名失败，未选中表情包或新名称已存在';
         errorBox.style.display = 'block';
     }
 });
 
-renameInput.addEventListener('keyup', (event) => {
+renameInput.addEventListener('keydown', (event) => {
+    event.stopPropagation();
     if (event.keyCode === 13) {
         renameButton.click();
     }
 });
 
 downloadImgButton.addEventListener('click', async () => {
-    const selectedImg = lastDivSelected.querySelector('img');
-    const imgName = selectedImg.alt;
-    window.electronAPI.copyImg(imgName);
+    if (lastDivSelected) {
+        const selectedImg = lastDivSelected.querySelector('img');
+        const imgName = selectedImg.alt;
+        window.electronAPI.copyImg(imgName);
+    } else {
+        errorBox.textContent = '未选中表情包';
+        errorBox.style.display = 'block';
+    }
+});
+
+window.electronAPI.menuCopyClick(async () => {
+    downloadImgButton.click();
+});
+
+document.body.addEventListener('keydown', (event) => {
+    if (event.ctrlKey && event.key === 'c') {
+        downloadImgButton.click();
+    }
 });
