@@ -1,7 +1,11 @@
 const imgContainer = document.getElementById('img-container');
 const searchInput = document.getElementById('search-input');
 const searchButton = document.getElementById('search-button');
-const configButton = document.getElementById('change-img-path');
+const configButton = document.getElementById('config-button');
+const configMenu = document.getElementById('config-menu');
+const changePathInput = document.getElementById('change-path-input');
+const changePathButton = document.getElementById('change-path-button');
+const sizeSelector = document.getElementById('img-size-select');
 const filterButton = document.getElementById('filter-button');
 const filterMenu = document.getElementById('filter-menu');
 const filterAllButton = document.getElementById('filter-all');
@@ -11,16 +15,28 @@ const renameInput = document.getElementById('rename-input');
 const renameButton = document.getElementById('rename-button');
 const downloadImgButton = document.getElementById('download-img');
 const errorBox = document.getElementById('error-box');
+const sizeStyle = document.getElementById('image-width');
 
+
+// -------初始化开始-------
 let lastDivSelecteds = null;
+
+let filterTypeBuffer = 'all';
+let filterTextsBuffer = [];
 
 filterMenu.style.display = 'none';
 errorBox.style.display = 'none';
-let filterTypeBuffer = 'all';
+configMenu.style.display = 'none';
 
-let filterTextsBuffer = [];
+async function initUpdate () {
+    sizeSelector.value = await window.electronAPI.getSize();
+    console.log("Your image display size is: ", sizeSelector.value);
+    changeImageSize(sizeSelector.value);
+    await update();
+}
 
-update();
+initUpdate();
+// -------初始化结束-------
 
 async function update(filterType = 'all', filterTexts = []) {
     // 清除选择
@@ -106,12 +122,13 @@ async function update(filterType = 'all', filterTexts = []) {
 
         idCounter++;
     });
-}
 
-configButton.addEventListener('click', async () => {
-    await window.electronAPI.updateImgPath();
-    await update(filterTypeBuffer, filterTextsBuffer);
-});
+    if (filterType == 'unfiltered') {
+        // 筛选模式为“未命名”时，自动选择第一张图片，方便命名
+        lastDivSelecteds = [document.getElementById('img-div-0')];
+        lastDivSelecteds[0].classList.add('selected');
+    }
+}
 
 function imgSelect(event) {
     console.log('imgSelect前：', lastDivSelecteds);
@@ -164,6 +181,57 @@ function imgSelect(event) {
     console.log('imgSelect后：', lastDivSelecteds);
 }
 
+// 设置
+configButton.addEventListener('click', async () => {
+    if (configMenu.style.display == 'block') {
+        configMenu.style.display = 'none';
+    } else {
+        changePathInput.value = await window.electronAPI.getImgPath();
+        sizeSelector.value = await window.electronAPI.getSize();
+        console.log(sizeSelector.value);
+        configMenu.style.display = 'block';
+    }
+});
+
+changePathButton.addEventListener('click', async () => {
+    await window.electronAPI.setImgPath();
+    changePathInput.value = await window.electronAPI.getImgPath();
+    await update(filterTypeBuffer, filterTextsBuffer);
+});
+
+function changeImageSize(value) {
+    switch (value) {
+        case '1':
+            sizeStyle.href = './style/imageWidth/imageWidth1125.css';
+            break;
+        case '2':
+            sizeStyle.href = './style/imageWidth/imageWidth1500.css';
+            break;
+        case '3':
+            sizeStyle.href = './style/imageWidth/imageWidth1875.css';
+            break;
+        case '4':
+            sizeStyle.href = './style/imageWidth/imageWidth2250.css';
+            break;
+        case '5':
+            sizeStyle.href = './style/imageWidth/imageWidth2625.css';
+            break;
+        case '6':
+            sizeStyle.href = './style/imageWidth/imageWidth3000.css';
+            break;
+        default:
+            sizeStyle.href = './style/imageWidth/imageWidth1500.css';
+    }
+
+}
+
+sizeSelector.addEventListener('change', async () => {
+    changeImageSize(sizeSelector.value);
+    await window.electronAPI.setSize(sizeSelector.value);
+    await update(filterTypeBuffer, filterTextsBuffer);
+});
+
+// 右键菜单
 function contextMenu(event) {
     imgSelect.call(this, event);
     const arg = {
@@ -173,17 +241,13 @@ function contextMenu(event) {
     window.electronAPI.menuClick(arg);
 }
 
-filterButton.addEventListener('click', () => {
-    if (filterMenu.style.display == 'block') {
-        filterMenu.style.display = 'none';
-    } else {
-        filterMenu.style.display = 'block';
-    }
-});
-
-function closeErrorBox(event) {
+// 关闭ErrorBox和菜单
+function closeBox(event) {
     if (!filterButton.contains(event.target) && filterMenu.style.display == 'block' && !filterMenu.contains(event.target)) {
         filterMenu.style.display = 'none';
+    }
+    if (!configButton.contains(event.target) && configMenu.style.display == 'block' && !configMenu.contains(event.target)) {
+        configMenu.style.display = 'none';
     }
     if (errorBox.style.display == 'block' && !errorBox.contains(event.target)) {
         errorBox.style.display = 'none';
@@ -191,11 +255,20 @@ function closeErrorBox(event) {
 }
 
 document.body.addEventListener('click', (event) => {
-    closeErrorBox(event);
+    closeBox(event);
 });
 
 document.body.addEventListener('contextmenu', (event) => {
-    closeErrorBox(event);
+    closeBox(event);
+});
+
+// 筛选
+filterButton.addEventListener('click', () => {
+    if (filterMenu.style.display == 'block') {
+        filterMenu.style.display = 'none';
+    } else {
+        filterMenu.style.display = 'block';
+    }
 });
 
 filterAllButton.addEventListener('click', () => {
@@ -213,6 +286,7 @@ filterUnfilteredButton.addEventListener('click', () => {
     update(filterTypeBuffer, filterTextsBuffer);
 });
 
+// 搜索图片
 searchButton.addEventListener('click', (event) => {
     event.stopPropagation();
     const searchText = searchInput.value;
@@ -227,6 +301,7 @@ searchInput.addEventListener('keydown', (event) => {
     }
 });
 
+// 重命名图片
 renameButton.addEventListener('click', async (event) => {
     event.stopPropagation();
     if (!lastDivSelecteds) {
@@ -242,15 +317,20 @@ renameButton.addEventListener('click', async (event) => {
     if (lastDivSelecteds.length == 1) {
         const selectedImg = lastDivSelecteds[0].querySelector('img');
         const oldName = selectedImg.alt;
-        const newName = renameInput.value + oldName.substring(oldName.lastIndexOf("."));
+        let newName = renameInput.value + oldName.substring(oldName.lastIndexOf("."));
         console.log(oldName, newName);
-        const isRenamed = await window.electronAPI.renameImg(oldName, newName);
-        if (isRenamed) {
-            update(filterTypeBuffer, filterTextsBuffer);
-        } else {
-            errorBox.getElementsByTagName('p')[0].textContent = '重命名失败，新名称已存在';
-            errorBox.style.display = 'block';
+        let isRenamed = await window.electronAPI.renameImg(oldName, newName);
+        if (!isRenamed) {
+            // 重命名失败的话，为图片添加数字后缀再次重命名
+            let nameCount = 0;
+            do {
+                newName = renameInput.value + nameCount + oldName.substring(oldName.lastIndexOf("."));
+                isRenamed = await window.electronAPI.renameImg(oldName, newName);
+                console.log('Rename: ', oldName, newName, isRenamed);
+                nameCount += 1;
+            } while (!isRenamed);
         }
+        update(filterTypeBuffer, filterTextsBuffer);
     } else if (lastDivSelecteds.length > 1) {
         console.log('批量重命名');
         let nameCount = 0;
@@ -263,8 +343,8 @@ renameButton.addEventListener('click', async (event) => {
             let isRenamed = false;
             do {
                 const newName = renameInput.value + nameCount + oldName.substring(oldName.lastIndexOf("."));
-                console.log(oldName, newName);
                 isRenamed = await window.electronAPI.renameImg(oldName, newName);
+                console.log('Rename: ', oldName, newName, isRenamed);
                 nameCount += 1;
             } while (!isRenamed);
         }
@@ -283,6 +363,7 @@ window.electronAPI.menuRenameClick(() => {
     renameButton.click();
 });
 
+// 复制图片
 downloadImgButton.addEventListener('click', async (event) => {
     event.stopPropagation();
     if (!lastDivSelecteds) {
@@ -305,7 +386,7 @@ window.electronAPI.menuCopyClick(() => {
 });
 
 document.body.addEventListener('keydown', (event) => {
-    closeErrorBox(event);
+    closeBox(event);
     if (event.ctrlKey && event.key === 'c') {
         downloadImgButton.click();
     }

@@ -31,7 +31,7 @@
     background-position: center;
 }
 
-#change-img-path {
+#config-button {
     top: 10px;
     background-image: url(../assets/change_img_path_button.jpg);
 }
@@ -42,21 +42,21 @@
 }
 
 #search-bar {
-    width: 70%;
+    width: calc(100% - 170px);
     height: 30px;
     display: block;
     position: absolute;
-    left: 10%;
+    left: 44.2px;
     top: 10px;
     background-color: rgb(187, 252, 255);
 }
 
 #rename-bar {
-    width: 70%;
+    width: calc(100% - 170px);
     height: 30px;
     display: block;
     position: absolute;
-    left: 10%;
+    left: 44.2px;
     top: 55px;
     background-color: rgb(187, 252, 255);
 }
@@ -70,11 +70,11 @@
 }
 
 .config-button {
-    width: 12%;
+    width: 100px;
     height: 35.2px;
     display: block;
     position: absolute;
-    right: 4%;
+    right: 10px;
     padding: 1px;
     border-radius: 6px;
     border-width: 2px;

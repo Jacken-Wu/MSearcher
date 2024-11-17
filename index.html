@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="./style/bottomBar.css">
     <link rel="stylesheet" href="./style/bottonHover.css">
     <link rel="stylesheet" href="./style/errorBox.css">
+    <link id="image-width" rel="stylesheet" href="./style/imageWidth/imageWidth1500.css">
+    <link rel="stylesheet" href="./style/configMenu.css">
 </head>
 
 <body>
@@ -28,7 +30,7 @@
         <div id="filter-unfiltered" class="filter-menu-button filter-button-last">未命名表情包</div>
     </div>
     <div id="bottom-bar">
-        <button type="button" id="change-img-path" class="left-bottom-button">
+        <button type="button" id="config-button" class="left-bottom-button">
             <div class="button-cover"></div>
         </button>
         <button type="button" id="download-img" class="left-bottom-button">
@@ -48,6 +50,22 @@
             <p>重命名</p>
             <div class="button-cover"></div>
         </button>
+    </div>
+    <div id="config-menu">
+        <div id="change-path-bar">
+            <input type="text" id="change-path-input" class="input-box" readonly>
+        </div>
+        <button type="button" id="change-path-button" class="config-button">
+            <p>选择路径</p>
+        </button>
+        <select name="" id="img-size-select">
+            <option value="1">75%</option>
+            <option value="2">100%</option>
+            <option value="3">125%</option>
+            <option value="4">150%</option>
+            <option value="5">175%</option>
+            <option value="6">200%</option>
+        </select>
     </div>
     <div class="bottom-empty"></div>
     <div id="error-box">

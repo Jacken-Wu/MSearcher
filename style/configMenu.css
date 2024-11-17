@@ -1,0 +1,42 @@
+#config-menu {
+    display: none;
+    position: fixed;
+    height: 100px;
+    width: 90%;
+    bottom: 130px;
+    background-color: rgb(187, 252, 255);
+    border-radius: 7px;
+    border-width: 2px;
+    border-style: solid;
+    z-index: 3;
+}
+
+@media (min-width: 400px) {
+    #config-menu {
+        width: 360px;
+    }
+}
+
+#change-path-bar {
+    width: calc(100% - 140px);
+    height: 30px;
+    top: 10px;
+    left: 10px;
+    position: absolute;
+}
+
+#change-path-button {
+    width: 100px;
+    height: 35.2px;
+    top: 10px;
+    right: 10px;
+    position: absolute;
+}
+
+#img-size-select {
+    width: calc(100% - 134px);
+    height: 30px;
+    top: 55px;
+    left: 10px;
+    position: absolute;
+}

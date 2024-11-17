@@ -1,0 +1,103 @@
+.img-div {
+    height: 152.5px;
+}
+
+.img-div .img-outer {
+    height: 112.5px;
+}
+
+@media (min-width: 337.5px) {
+    .img-div {
+        width: 33.33%;
+    }
+}
+
+@media (min-width: 450px) {
+    .img-div {
+        width: 25%;
+    }
+}
+
+@media (min-width: 562.5px) {
+    .img-div {
+        width: 20%;
+    }
+}
+
+@media (min-width: 675px) {
+    .img-div {
+        width: 16.66%;
+    }
+}
+
+@media (min-width: 787.5px) {
+    .img-div {
+        width: 14.28%;
+    }
+}
+
+@media (min-width: 900px) {
+    .img-div {
+        width: 12.5%;
+    }
+}
+
+@media (min-width: 1012.5px) {
+    .img-div {
+        width: 11.11%;
+    }
+}
+
+@media (min-width: 1125px) {
+    .img-div {
+        width: 10%;
+    }
+}
+
+@media (min-width: 1237.5px) {
+    .img-div {
+        width: 9.09%;
+    }
+}
+
+@media (min-width: 1350px) {
+    .img-div {
+        width: 8.33%;
+    }
+}
+
+@media (min-width: 1462.5px) {
+    .img-div {
+        width: 7.69%;
+    }
+}
+
+@media (min-width: 1575px) {
+    .img-div {
+        width: 7.14%;
+    }
+}
+
+@media (min-width: 1687.5px) {
+    .img-div {
+        width: 6.66%;
+    }
+}
+
+@media (min-width: 1800px) {
+    .img-div {
+        width: 6.25%;
+    }
+}
+
+@media (min-width: 1912.5px) {
+    .img-div {
+        width: 5.88%;
+    }
+}
+
+@media (min-width: 2025px) {
+    .img-div {
+        width: 5.55%;
+    }
+}

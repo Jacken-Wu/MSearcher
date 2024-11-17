@@ -22,9 +22,11 @@ function createWindow() {
 
     ipcMain.handle('get-images', getImgList);
     ipcMain.handle('get-img-path', getImgPath);
-    ipcMain.handle('update-img-path', updateImgPath);
+    ipcMain.handle('set-img-path', setImgPath);
     ipcMain.handle('rename-img', renameImg);
     ipcMain.handle('copy-img', copyImg);
+    ipcMain.handle('get-size', getSize);
+    ipcMain.handle('set-size', setSize);
     ipcMain.on('menu-click', (event, arg) => { menu.popup({ x: arg.x, y: arg.y }) });
 
     win.loadFile('./index.html');
@@ -66,6 +68,7 @@ function initConfig() {
     // 为config.json写入初始配置
     const config = {};
     config.img_path = path.join(getUserdataPath(), 'img');
+    config.size = '2';
     try {
         fs.writeFileSync(configPath, JSON.stringify(config), 'utf-8')
         console.log('Initialize config file success.');
@@ -110,9 +113,30 @@ function changeConfig(key, value) {
 function getImgPath() {
     // 获取图片文件夹路径
     const config = readConfig();
+    if (config.img_path == undefined) {
+        changeConfig('img_path', path.join(getUserdataPath(), 'img'));
+        return path.join(getUserdataPath(), 'img');
+    }
     const imgPath = config.img_path;
     console.log('Img_path: ', imgPath);
     return imgPath;
+}
+
+function getSize() {
+    // 获取图片缩放尺寸等级
+    const config = readConfig();
+    if (config.size == undefined) {
+        changeConfig('size', '2');
+        return '2';
+    }
+    const size = config.size;
+    console.log('size: ', size);
+    return size;
+}
+
+function setSize(event, size) {
+    // 设置图片缩放尺寸等级
+    changeConfig('size', size);
 }
 
 function getImgList() {
@@ -129,7 +153,7 @@ function getImgList() {
     }
 }
 
-async function updateImgPath() {
+async function setImgPath() {
     // 选择图片文件夹
     const result = await dialog.showOpenDialog({
         properties: ['openDirectory', 'dontAddToRecent'],

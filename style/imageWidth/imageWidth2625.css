@@ -1,0 +1,43 @@
+.img-div {
+    height: 302.5px;
+}
+
+.img-div .img-outer {
+    height: 262.5px;
+}
+
+@media (min-width: 787.5px) {
+    .img-div {
+        width: 33.33%;
+    }
+}
+
+@media (min-width: 1050px) {
+    .img-div {
+        width: 25%;
+    }
+}
+
+@media (min-width: 1312.5px) {
+    .img-div {
+        width: 20%;
+    }
+}
+
+@media (min-width: 1575px) {
+    .img-div {
+        width: 16.66%;
+    }
+}
+
+@media (min-width: 1837.5px) {
+    .img-div {
+        width: 14.28%;
+    }
+}
+
+@media (min-width: 2100px) {
+    .img-div {
+        width: 12.5%;
+    }
+}

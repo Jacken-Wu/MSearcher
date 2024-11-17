@@ -18,71 +18,6 @@ body {
     background-color: rgb(222, 252, 255);
 }
 
-@media (min-width: 450px) {
-    .img-div {
-        width: 33.33%;
-    }
-}
-
-@media (min-width: 600px) {
-    .img-div {
-        width: 25%;
-    }
-}
-
-@media (min-width: 750px) {
-    .img-div {
-        width: 20%;
-    }
-}
-
-@media (min-width: 900px) {
-    .img-div {
-        width: 16.66%;
-    }
-}
-
-@media (min-width: 1050px) {
-    .img-div {
-        width: 14.28%;
-    }
-}
-
-@media (min-width: 1200px) {
-    .img-div {
-        width: 12.5%;
-    }
-}
-
-@media (min-width: 1350px) {
-    .img-div {
-        width: 11.11%;
-    }
-}
-@media (min-width: 1500px) {
-    .img-div {
-        width: 10%;
-    }
-}
-
-@media (min-width: 1650px) {
-    .img-div {
-        width: 9.09%;
-    }
-}
-
-@media (min-width: 1800px) {
-    .img-div {
-        width: 8.33%;
-    }
-}
-
-@media (min-width: 1950px) {
-    .img-div {
-        width: 7.69%;
-    }
-}
-
 .img-div .img-outer {
     width: 100%;
     height: 150px;
@@ -91,8 +26,9 @@ body {
 }
 
 .img-div .img-outer img {
-    max-width: 95%;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
     position: absolute;
     top: 50%;
     left: 50%;
