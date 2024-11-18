@@ -383,11 +383,16 @@ window.electronAPI.menuOCRClick(async () => {
     }
     const selectNum = lastDivSelecteds.length;
     let ocrFailedNum = 0;
+    let oldNames = [];
     for (const div of lastDivSelecteds) {
         const selectedImg = div.querySelector('img');
         const oldName = selectedImg.alt;
-        let newNameNonSuffix = await window.electronAPI.ocrImg(oldName);
+        oldNames.push(oldName);
+    }
+    let newNameNonSuffixs = await window.electronAPI.ocrImg(oldNames);
+    for (let [index, newNameNonSuffix] of newNameNonSuffixs.entries()) {
         newNameNonSuffix = removeSpecialChar(newNameNonSuffix);
+        const oldName = oldNames[index];
         if (newNameNonSuffix === '') {
             ocrFailedNum += 1;
             continue;

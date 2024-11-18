@@ -4,9 +4,6 @@ const fs = require('fs');
 const OCR = require('paddleocrjson');
 
 const configPath = path.join(getUserdataPath(), 'config.json');
-const ocr = new OCR('PaddleOCR-json.exe', [/* '-port=9985', '-addr=loopback' */], {
-    cwd: path.join(__dirname.replace('\\resources\\app.asar', ''), './tools/ocr'),
-}, false);
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -215,22 +212,32 @@ function copyImg(event, imgName) {
     console.log('Copy image success: ', imgSrc);
 }
 
-async function ocrImg(event, imgName) {
+async function ocrImg(event, imgNames) {
     const imgPath = getImgPath();
-    const imgSrc = path.join(imgPath, imgName);
-    let results = [];
-    await ocr.flush({ image_path: imgSrc })
-        .then((data) => { results = data.data });
-        // .then(() => { ocr.terminate() });
-    console.log('OCR result: ', results);
 
-    let resultStr = '';
-    if (results != null) {
-        results.forEach((item) => {
-            resultStr += item.text;
-        });
-    }
-    return resultStr;
+    const ocr = new OCR('PaddleOCR-json.exe', [/* '-port=9985', '-addr=loopback' */], {
+        cwd: path.join(__dirname.replace('\\resources\\app.asar', ''), 'tools/ocr'),
+    }, false);
+
+    let resultStrs = [];
+    for (const imgName of imgNames) {
+        const imgSrc = path.join(imgPath, imgName);
+        console.log('OCR image: ', imgSrc);
+        const results = (await ocr.flush({ image_path: imgSrc })).data;
+        console.log('OCR result: ', results);
+
+        let resultStr = '';
+        if (results != null) {
+            results.forEach((item) => {
+                resultStr += item.text;
+            });
+        }
+        resultStrs.push(resultStr);
+    };
+
+    ocr.terminate();
+
+    return resultStrs;
 }
 
 app.on('ready', () => {
@@ -240,10 +247,6 @@ app.on('ready', () => {
     });
 });
 
-app.on('window-all-closed', async () => {
-    if (process.platform !== 'darwin') {
-        const exit = await ocr.terminate();
-        console.log('Exit: ', exit);
-        app.quit()
-    }
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') { app.quit(); }
 });
