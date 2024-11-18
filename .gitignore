@@ -3,3 +3,5 @@ package-lock.json
 config.json
 photoshop/
 build/
+tools/ocr/*
+!tools/ocr/README.md

@@ -1,8 +1,12 @@
 const { app, BrowserWindow, ipcMain, dialog, clipboard, nativeImage, Menu } = require('electron')
 const path = require('path')
 const fs = require('fs');
+const OCR = require('paddleocrjson');
 
 const configPath = path.join(getUserdataPath(), 'config.json');
+const ocr = new OCR('PaddleOCR-json.exe', [/* '-port=9985', '-addr=loopback' */], {
+    cwd: path.join(__dirname.replace('\\resources\\app.asar', ''), './tools/ocr'),
+}, false);
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -27,6 +31,8 @@ function createWindow() {
     ipcMain.handle('copy-img', copyImg);
     ipcMain.handle('get-size', getSize);
     ipcMain.handle('set-size', setSize);
+    ipcMain.handle('ocr-img', ocrImg);
+    // ipcMain.handle('test', () => {return __dirname});
     ipcMain.on('menu-click', (event, arg) => { menu.popup({ x: arg.x, y: arg.y }) });
 
     win.loadFile('./index.html');
@@ -44,6 +50,12 @@ function createWindow() {
             click: () => {
                 win.webContents.send('menu-rename-click');
             },
+        },
+        {
+            label: 'OCR重命名',
+            click: () => {
+                win.webContents.send('menu-ocr-click');
+            }
         }
     ]);
 }
@@ -203,6 +215,24 @@ function copyImg(event, imgName) {
     console.log('Copy image success: ', imgSrc);
 }
 
+async function ocrImg(event, imgName) {
+    const imgPath = getImgPath();
+    const imgSrc = path.join(imgPath, imgName);
+    let results = [];
+    await ocr.flush({ image_path: imgSrc })
+        .then((data) => { results = data.data });
+        // .then(() => { ocr.terminate() });
+    console.log('OCR result: ', results);
+
+    let resultStr = '';
+    if (results != null) {
+        results.forEach((item) => {
+            resultStr += item.text;
+        });
+    }
+    return resultStr;
+}
+
 app.on('ready', () => {
     createWindow();
     app.on('activate', function () {
@@ -210,6 +240,10 @@ app.on('ready', () => {
     });
 });
 
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit()
+app.on('window-all-closed', async () => {
+    if (process.platform !== 'darwin') {
+        const exit = await ocr.terminate();
+        console.log('Exit: ', exit);
+        app.quit()
+    }
 });

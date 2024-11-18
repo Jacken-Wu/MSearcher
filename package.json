@@ -1,6 +1,6 @@
 {
   "name": "meme_searcher",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Meme Searcher",
   "main": "main.js",
   "scripts": {
@@ -13,16 +13,23 @@
     "electron": "^33.2.0",
     "electron-builder": "^25.1.8"
   },
+  "dependencies": {
+    "paddleocrjson": "^1.1.1-a"
+  },
   "build": {
     "appId": "com.meme.msearcher",
     "productName": "MSearcher",
     "files": [
       "**/*",
       "!node_modules",
+      "node_modules/paddleocrjson",
+      "!tools",
       "!build",
       "!img",
-      "!photoshop",
-      "!config.json"
+      "!photoshop"
+    ],
+    "extraFiles": [
+      "tools"
     ],
     "directories": {
       "output": "build/dist"

@@ -17,6 +17,8 @@ const downloadImgButton = document.getElementById('download-img');
 const errorBox = document.getElementById('error-box');
 const sizeStyle = document.getElementById('image-width');
 
+// 测试代码
+// console.log(window.electronAPI.test());
 
 // -------初始化开始-------
 let lastDivSelecteds = null;
@@ -309,7 +311,7 @@ renameButton.addEventListener('click', async (event) => {
         errorBox.style.display = 'block';
         return;
     }
-    if (renameInput.value === '') {
+    if (renameInput.value === '' || removeSpecialChar(renameInput.value) === '') {
         errorBox.getElementsByTagName('p')[0].textContent = '重命名失败，新名称不能为空';
         errorBox.style.display = 'block';
         return;
@@ -317,14 +319,15 @@ renameButton.addEventListener('click', async (event) => {
     if (lastDivSelecteds.length == 1) {
         const selectedImg = lastDivSelecteds[0].querySelector('img');
         const oldName = selectedImg.alt;
-        let newName = renameInput.value + oldName.substring(oldName.lastIndexOf("."));
+        const newNameNonSuffix = removeSpecialChar(renameInput.value);
+        let newName = newNameNonSuffix + oldName.substring(oldName.lastIndexOf("."));
         console.log(oldName, newName);
         let isRenamed = await window.electronAPI.renameImg(oldName, newName);
         if (!isRenamed) {
             // 重命名失败的话，为图片添加数字后缀再次重命名
             let nameCount = 0;
             do {
-                newName = renameInput.value + nameCount + oldName.substring(oldName.lastIndexOf("."));
+                newName = newNameNonSuffix + nameCount + oldName.substring(oldName.lastIndexOf("."));
                 isRenamed = await window.electronAPI.renameImg(oldName, newName);
                 console.log('Rename: ', oldName, newName, isRenamed);
                 nameCount += 1;
@@ -334,6 +337,7 @@ renameButton.addEventListener('click', async (event) => {
     } else if (lastDivSelecteds.length > 1) {
         console.log('批量重命名');
         let nameCount = 0;
+        const newNameNonSuffix = removeSpecialChar(renameInput.value);
         console.log(lastDivSelecteds);
         for (const div of lastDivSelecteds) {
             console.log('进入for循环');
@@ -342,7 +346,7 @@ renameButton.addEventListener('click', async (event) => {
             console.log(oldName);
             let isRenamed = false;
             do {
-                const newName = renameInput.value + nameCount + oldName.substring(oldName.lastIndexOf("."));
+                const newName = newNameNonSuffix + nameCount + oldName.substring(oldName.lastIndexOf("."));
                 isRenamed = await window.electronAPI.renameImg(oldName, newName);
                 console.log('Rename: ', oldName, newName, isRenamed);
                 nameCount += 1;
@@ -361,6 +365,50 @@ renameInput.addEventListener('keydown', (event) => {
 
 window.electronAPI.menuRenameClick(() => {
     renameButton.click();
+});
+
+function removeSpecialChar(inputStr) {
+    // 去除特殊字符
+    let resultStr = inputStr;
+    resultStr = resultStr.replace(/[\\\/\:\*\?\"\<\>\|]/g, '');
+    return resultStr;
+}
+
+// OCR重命名图片
+window.electronAPI.menuOCRClick(async () => {
+    if (!lastDivSelecteds) {
+        errorBox.getElementsByTagName('p')[0].textContent = '重命名失败，未选中表情包';
+        errorBox.style.display = 'block';
+        return;
+    }
+    const selectNum = lastDivSelecteds.length;
+    let ocrFailedNum = 0;
+    for (const div of lastDivSelecteds) {
+        const selectedImg = div.querySelector('img');
+        const oldName = selectedImg.alt;
+        let newNameNonSuffix = await window.electronAPI.ocrImg(oldName);
+        newNameNonSuffix = removeSpecialChar(newNameNonSuffix);
+        if (newNameNonSuffix === '') {
+            ocrFailedNum += 1;
+            continue;
+        }
+        let newName = newNameNonSuffix + oldName.substring(oldName.lastIndexOf("."));
+        console.log(oldName, newName);
+        let isRenamed = await window.electronAPI.renameImg(oldName, newName);
+        if (!isRenamed) {
+            // 重命名失败的话，为图片添加数字后缀再次重命名
+            let nameCount = 0;
+            do {
+                newName = newNameNonSuffix + nameCount + oldName.substring(oldName.lastIndexOf("."));
+                isRenamed = await window.electronAPI.renameImg(oldName, newName);
+                console.log('Rename: ', oldName, newName, isRenamed);
+                nameCount += 1;
+            } while (!isRenamed);
+        }
+    }
+    update(filterTypeBuffer, filterTextsBuffer);
+    errorBox.getElementsByTagName('p')[0].textContent = `重命名成功${selectNum - ocrFailedNum}张，失败${ocrFailedNum}张`;
+    errorBox.style.display = 'block';
 });
 
 // 复制图片

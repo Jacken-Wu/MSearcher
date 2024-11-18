@@ -8,7 +8,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     copyImg: (imgName) => ipcRenderer.invoke('copy-img', imgName),
     getSize: () => ipcRenderer.invoke('get-size'),
     setSize: (size) => ipcRenderer.invoke('set-size', size),
+    ocrImg: (imgName) => ipcRenderer.invoke('ocr-img', imgName),
+    // test: () => ipcRenderer.invoke('test'),
+
     menuClick: (arg) => ipcRenderer.send('menu-click', arg),
     menuCopyClick: (func) => ipcRenderer.on('menu-copy-click', func),
     menuRenameClick: (func) => ipcRenderer.on('menu-rename-click', func),
+    menuOCRClick: (func) => ipcRenderer.on('menu-ocr-click', func),
 })
