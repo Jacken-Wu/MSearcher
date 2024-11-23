@@ -24,7 +24,7 @@ const sizeStyle = document.getElementById('image-width');
 let lastDivSelecteds = null;
 
 let filterTypeBuffer = 'all';
-let filterTextsBuffer = [];
+let filterTextBuffer = '';
 
 filterMenu.style.display = 'none';
 errorBox.style.display = 'none';
@@ -40,7 +40,7 @@ async function initUpdate () {
 initUpdate();
 // -------初始化结束-------
 
-async function update(filterType = 'all', filterTexts = []) {
+async function update(filterType = 'all', filterText = '') {
     // 清除选择
     lastDivSelecteds = null;
 
@@ -51,46 +51,8 @@ async function update(filterType = 'all', filterTexts = []) {
     });
 
     // 获取图片列表
-    const imgList = await window.electronAPI.getImages();
+    const imgList = await window.electronAPI.getImages(filterType, filterText);
     console.log(imgList);
-
-    const imgListFilteredTemp = [];
-    switch (filterType) {
-        case 'all':
-            imgListFilteredTemp.push(...imgList);
-            break;
-        case 'filtered':
-            imgList.forEach(img => {
-                const firstChar = img.charAt(0);
-                const isUnfiltered = /^[a-zA-Z0-9-_]$/.test(firstChar);
-                if (!isUnfiltered) {
-                    imgListFilteredTemp.push(img);
-                }
-            });
-            break;
-        case 'unfiltered':
-            imgList.forEach(img => {
-                const firstChar = img.charAt(0);
-                const isUnfiltered = /^[a-zA-Z0-9-_]$/.test(firstChar);
-                if (isUnfiltered) {
-                    imgListFilteredTemp.push(img);
-                }
-            });
-            break;
-        default:
-            imgListFilteredTemp.push(...imgList);
-            break;
-    }
-
-    const imgListFiltered = [];
-    // 过滤图片列表
-    imgListFilteredTemp.forEach(img => {
-        const isFiltered = filterTexts.every(characterm => img.includes(characterm));
-        if (isFiltered) {
-            imgListFiltered.push(img);
-        }
-    });
-    console.log(imgListFiltered);
 
     // 获取图片目录
     let imgPath = await window.electronAPI.getImgPath();
@@ -99,7 +61,7 @@ async function update(filterType = 'all', filterTexts = []) {
 
     // 显示图片
     let idCounter = 0;
-    imgListFiltered.forEach(img => {
+    imgList.forEach(img => {
         // 获取图片名称
         const imgName = img.slice(0, img.lastIndexOf('.'));
 
@@ -198,7 +160,7 @@ configButton.addEventListener('click', async () => {
 changePathButton.addEventListener('click', async () => {
     await window.electronAPI.setImgPath();
     changePathInput.value = await window.electronAPI.getImgPath();
-    await update(filterTypeBuffer, filterTextsBuffer);
+    await update(filterTypeBuffer, filterTextBuffer);
 });
 
 function changeImageSize(value) {
@@ -230,7 +192,7 @@ function changeImageSize(value) {
 sizeSelector.addEventListener('change', async () => {
     changeImageSize(sizeSelector.value);
     await window.electronAPI.setSize(sizeSelector.value);
-    await update(filterTypeBuffer, filterTextsBuffer);
+    await update(filterTypeBuffer, filterTextBuffer);
 });
 
 // 右键菜单
@@ -275,25 +237,24 @@ filterButton.addEventListener('click', () => {
 
 filterAllButton.addEventListener('click', () => {
     filterTypeBuffer = 'all';
-    update(filterTypeBuffer, filterTextsBuffer);
+    update(filterTypeBuffer, filterTextBuffer);
 });
 
 filterFilteredButton.addEventListener('click', () => {
     filterTypeBuffer = 'filtered';
-    update(filterTypeBuffer, filterTextsBuffer);
+    update(filterTypeBuffer, filterTextBuffer);
 });
 
 filterUnfilteredButton.addEventListener('click', () => {
     filterTypeBuffer = 'unfiltered';
-    update(filterTypeBuffer, filterTextsBuffer);
+    update(filterTypeBuffer, filterTextBuffer);
 });
 
 // 搜索图片
 searchButton.addEventListener('click', (event) => {
     event.stopPropagation();
-    const searchText = searchInput.value;
-    filterTextsBuffer = searchText.split('');
-    update(filterTypeBuffer, filterTextsBuffer);
+    filterTextBuffer = searchInput.value;
+    update(filterTypeBuffer, filterTextBuffer);
 });
 
 searchInput.addEventListener('keydown', (event) => {
@@ -333,7 +294,7 @@ renameButton.addEventListener('click', async (event) => {
                 nameCount += 1;
             } while (!isRenamed);
         }
-        update(filterTypeBuffer, filterTextsBuffer);
+        update(filterTypeBuffer, filterTextBuffer);
     } else if (lastDivSelecteds.length > 1) {
         console.log('批量重命名');
         let nameCount = 0;
@@ -352,7 +313,7 @@ renameButton.addEventListener('click', async (event) => {
                 nameCount += 1;
             } while (!isRenamed);
         }
-        update(filterTypeBuffer, filterTextsBuffer);
+        update(filterTypeBuffer, filterTextBuffer);
     }
 });
 
@@ -411,7 +372,7 @@ window.electronAPI.menuOCRClick(async () => {
             } while (!isRenamed);
         }
     }
-    update(filterTypeBuffer, filterTextsBuffer);
+    update(filterTypeBuffer, filterTextBuffer);
     errorBox.getElementsByTagName('p')[0].textContent = `重命名成功${selectNum - ocrFailedNum}张，失败${ocrFailedNum}张`;
     errorBox.style.display = 'block';
 });

@@ -1,10 +1,10 @@
 {
   "name": "meme_searcher",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Meme Searcher",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "chcp 65001 && electron .",
     "build-win64": "npx electron-builder build --win"
   },
   "author": "Jacken Wu",
@@ -14,6 +14,7 @@
     "electron-builder": "^25.1.8"
   },
   "dependencies": {
+    "chinese-s2t": "^1.0.0",
     "paddleocrjson": "^1.1.1-a"
   },
   "build": {
@@ -23,6 +24,7 @@
       "**/*",
       "!node_modules",
       "node_modules/paddleocrjson",
+      "node_modules/chinese-s2t",
       "!tools",
       "!build",
       "!img",

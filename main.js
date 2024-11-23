@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, clipboard, nativeImage, Menu } = re
 const path = require('path')
 const fs = require('fs');
 const OCR = require('paddleocrjson');
+const Chinese = require('chinese-s2t');
 
 const configPath = path.join(getUserdataPath(), 'config.json');
 
@@ -21,7 +22,7 @@ function createWindow() {
         enableRemoteModule: true
     });
 
-    ipcMain.handle('get-images', getImgList);
+    ipcMain.handle('get-images', filterImageList);
     ipcMain.handle('get-img-path', getImgPath);
     ipcMain.handle('set-img-path', setImgPath);
     ipcMain.handle('rename-img', renameImg);
@@ -238,6 +239,67 @@ async function ocrImg(event, imgNames) {
     ocr.terminate();
 
     return resultStrs;
+}
+
+function filterImageList(event, filterType = 'all', filterText = '') {
+    /* filterType: all, filtered, unfiltered */
+
+    // 获取图片列表
+    const imgList = getImgList();
+
+    const imgListFilteredTemp = [];
+    switch (filterType) {
+        case 'all':
+            imgListFilteredTemp.push(...imgList);
+            break;
+        case 'filtered':
+            imgList.forEach(img => {
+                const firstChar = img.charAt(0);
+                const isUnfiltered = /^[a-zA-Z0-9-_]$/.test(firstChar);
+                if (!isUnfiltered) {
+                    imgListFilteredTemp.push(img);
+                }
+            });
+            break;
+        case 'unfiltered':
+            imgList.forEach(img => {
+                const firstChar = img.charAt(0);
+                const isUnfiltered = /^[a-zA-Z0-9-_]$/.test(firstChar);
+                if (isUnfiltered) {
+                    imgListFilteredTemp.push(img);
+                }
+            });
+            break;
+        default:
+            imgListFilteredTemp.push(...imgList);
+            break;
+    }
+
+    // 处理过滤文本, 简繁体转换，大小写转换，实现简繁体大小写混合搜索
+    const filterTextLowerTemp = filterText.toLowerCase();
+
+    const filterTextLower = filterTextLowerTemp.split('').filter(character => /^[a-z]$/.test(character)).join('');
+    const filterTextUpper = filterTextLower.toUpperCase();
+    console.log('Filter text lower: ', filterTextLower);
+    console.log('Filter text upper: ', filterTextUpper);
+
+    let filterTextsSimplified = Chinese.t2s(filterTextLowerTemp).split('').filter(character => !/^[a-z\s]$/.test(character));
+    console.log('Filter text simplified: ', filterTextsSimplified);
+    let filterTextsTraditional = Chinese.s2t(filterTextLowerTemp).split('').filter(character => !/^[a-z\s]$/.test(character));
+    console.log('Filter text traditional: ', filterTextsTraditional);
+
+    // 搜索图片列表
+    let imgListFiltered = [];
+    imgListFilteredTemp.forEach(img => {
+        const isFilteredEnglish = filterTextLower.split('').every(character => img.includes(character)) || filterTextUpper.split('').every(character => img.includes(character));
+        const isFilteredChinese = filterTextsSimplified.every(character => img.includes(character)) || filterTextsTraditional.every(character => img.includes(character));
+        if (isFilteredEnglish && isFilteredChinese) {
+            imgListFiltered.push(img);
+        }
+    });
+    console.log(imgListFiltered);
+
+    return imgListFiltered;
 }
 
 app.on('ready', () => {
