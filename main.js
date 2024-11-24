@@ -6,8 +6,10 @@ const Chinese = require('chinese-s2t');
 const log = require('electron-log');
 
 log.initialize();
+log.transports.file.maxSize = 1048576; // 1MB
 log.transports.file.resolvePathFn = () => { return path.join(__dirname.replace('\\resources\\app.asar', ''), 'logs/main.log') };
 log.info('Meme Searcher started.');
+Object.assign(console, log.functions);
 
 const configPath = path.join(getUserdataPath(), 'config.json');
 
@@ -185,6 +187,7 @@ async function setImgPath() {
 }
 
 function renameImg(event, oldName, newName) {
+    log.info('Rename image: ', oldName, '->', newName);
     const imgPath = getImgPath();
     const files = getImgList();
     if (files.includes(newName)) {
@@ -193,6 +196,7 @@ function renameImg(event, oldName, newName) {
     }
     const oldPath = path.join(imgPath, oldName);
     const newPath = path.join(imgPath, newName);
+    log.info('Rename image (path): ', oldPath, '->', newPath);
     try {
         fs.renameSync(oldPath, newPath);
         log.info('Rename image success: ', oldName, '->', newName);
@@ -297,7 +301,7 @@ function filterImageList(event, filterType = 'all', filterText = '') {
             imgListFiltered.push(img);
         }
     });
-    console.log(imgListFiltered);
+    // console.log(imgListFiltered);
     log.info('Filtered image list length: ', imgListFiltered.length);
 
     return imgListFiltered;
@@ -307,6 +311,26 @@ app.on('ready', () => {
     createWindow();
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    });
+
+    // 监听渲染进程崩溃
+    app.on('renderer-process-crashed', (event, webContents, killed) => {
+        log.error(`Renderer process crashed: ${JSON.stringify(event)}`);
+    });
+
+    // 监听 GPU 进程崩溃
+    app.on('gpu-process-crashed', (event, killed) => {
+        log.error(`GPU process crashed: ${JSON.stringify(event)}`);
+    });
+
+    // 监听渲染进程结束
+    app.on('render-process-gone', (event, webContents, details) => {
+        log.error(`Render process gone: ${JSON.stringify(details)}`);
+    });
+
+    // 监听子进程结束
+    app.on('child-process-gone', (event, details) => {
+        log.error(`Child process gone: ${JSON.stringify(details)}`);
     });
 });
 

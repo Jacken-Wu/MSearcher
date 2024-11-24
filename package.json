@@ -1,6 +1,6 @@
 {
   "name": "meme_searcher",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Meme Searcher",
   "main": "main.js",
   "scripts": {
