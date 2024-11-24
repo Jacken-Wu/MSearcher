@@ -285,17 +285,17 @@ function filterImageList(event, filterType = 'all', filterText = '') {
     // 处理过滤文本, 简繁体转换，大小写转换，实现简繁体大小写混合搜索
     const filterTextLowerTemp = filterText.toLowerCase();
 
-    const filterTextLower = filterTextLowerTemp.split('').filter(character => /^[a-z]$/.test(character)).join('');
-    const filterTextUpper = filterTextLower.toUpperCase();
+    const filterTextsLower = filterTextLowerTemp.split('').filter(character => /^[a-z]$/.test(character));
     let filterTextsSimplified = Chinese.t2s(filterTextLowerTemp).split('').filter(character => !/^[a-z\s]$/.test(character));
     let filterTextsTraditional = Chinese.s2t(filterTextLowerTemp).split('').filter(character => !/^[a-z\s]$/.test(character));
 
-    log.info('Filter text lower, upper, simplified, traditional: ', filterTextLower, filterTextUpper, filterTextsSimplified, filterTextsTraditional);
+    log.info('Filter text english, simplified, traditional: ', filterTextsLower, filterTextsSimplified, filterTextsTraditional);
 
     // 搜索图片列表
     let imgListFiltered = [];
     imgListFilteredTemp.forEach(img => {
-        const isFilteredEnglish = filterTextLower.split('').every(character => img.includes(character)) || filterTextUpper.split('').every(character => img.includes(character));
+        const imgLower = img.toLowerCase();
+        const isFilteredEnglish = filterTextsLower.every(character => imgLower.includes(character));
         const isFilteredChinese = filterTextsSimplified.every(character => img.includes(character)) || filterTextsTraditional.every(character => img.includes(character));
         if (isFilteredEnglish && isFilteredChinese) {
             imgListFiltered.push(img);
