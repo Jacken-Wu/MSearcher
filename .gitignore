@@ -5,3 +5,4 @@ photoshop/
 build/
 tools/ocr/*
 !tools/ocr/README.md
+logs/

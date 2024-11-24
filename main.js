@@ -1,8 +1,13 @@
-const { app, BrowserWindow, ipcMain, dialog, clipboard, nativeImage, Menu } = require('electron')
-const path = require('path')
+const { app, BrowserWindow, ipcMain, dialog, clipboard, nativeImage, Menu } = require('electron');
+const path = require('path');
 const fs = require('fs');
 const OCR = require('paddleocrjson');
 const Chinese = require('chinese-s2t');
+const log = require('electron-log');
+
+log.initialize();
+log.transports.file.resolvePathFn = () => { return path.join(__dirname.replace('\\resources\\app.asar', ''), 'logs/main.log') };
+log.info('Meme Searcher started.');
 
 const configPath = path.join(getUserdataPath(), 'config.json');
 
@@ -62,17 +67,17 @@ function initConfig() {
     // 检查meme_searcher文件夹是否存在，不存在则创建
     try {
         fs.accessSync(getUserdataPath(), fs.constants.F_OK)
-        console.log('meme_searcher folder found.');
+        log.info('meme_searcher folder found.');
     } catch (err) {
-        console.log('meme_searcher folder not found, create a new one.');
+        log.error('meme_searcher folder not found, create a new one.');
         fs.mkdirSync(getUserdataPath());
     }
     // 检查img文件夹是否存在，不存在则创建
     try {
         fs.accessSync(path.join(getUserdataPath(), 'img'), fs.constants.F_OK)
-        console.log('Img folder found.');
+        log.info('Img folder found.');
     } catch (err) {
-        console.log('Img folder not found, create a new one.');
+        log.error('Img folder not found, create a new one.');
         fs.mkdirSync(path.join(getUserdataPath(), 'img'));
     }
     // 为config.json写入初始配置
@@ -81,18 +86,18 @@ function initConfig() {
     config.size = '2';
     try {
         fs.writeFileSync(configPath, JSON.stringify(config), 'utf-8')
-        console.log('Initialize config file success.');
+        log.info('Initialize config file success.');
     } catch (err) {
-        console.log('Initialize config file failed: ', err);
+        log.error('Initialize config file failed: ', err);
     }
 }
 
 function checkConfig() {
     try {
         fs.accessSync(configPath, fs.constants.F_OK)
-        console.log('Config file found.');
+        log.info('Config file found.');
     } catch (err) {
-        console.log('Config file not found, create a new one.');
+        log.error('Config file not found, create a new one.');
         initConfig();
     }
 }
@@ -102,10 +107,10 @@ function readConfig() {
     try {
         const data = fs.readFileSync(configPath, 'utf-8')
         const config = JSON.parse(data);
-        console.log(config);
+        log.info(config);
         return config;
     } catch (err) {
-        console.log('Read config file failed: ', err);
+        log.info('Read config file failed: ', err);
     }
 }
 
@@ -114,9 +119,9 @@ function changeConfig(key, value) {
     config[key] = value;
     try {
         fs.writeFileSync(configPath, JSON.stringify(config), 'utf-8')
-        console.log('Change config success.');
+        log.info('Change config success.');
     } catch (err) {
-        console.log('Change config failed: ', err);
+        log.error('Change config failed: ', err);
     }
 }
 
@@ -128,7 +133,7 @@ function getImgPath() {
         return path.join(getUserdataPath(), 'img');
     }
     const imgPath = config.img_path;
-    console.log('Img_path: ', imgPath);
+    log.info('Img_path: ', imgPath);
     return imgPath;
 }
 
@@ -140,13 +145,14 @@ function getSize() {
         return '2';
     }
     const size = config.size;
-    console.log('size: ', size);
+    log.info('Now size level: ', size);
     return size;
 }
 
 function setSize(event, size) {
     // 设置图片缩放尺寸等级
     changeConfig('size', size);
+    log.info('Change size level: ', size);
 }
 
 function getImgList() {
@@ -155,10 +161,10 @@ function getImgList() {
 
     try {
         const files = fs.readdirSync(imgPath)
-        console.log('Images: ', files);
+        log.info('Images length: ', files.length);
         return files;
     } catch (err) {
-        console.log('Read images failed: ', err);
+        log.error('Read images failed: ', err);
         return [];
     }
 }
@@ -168,12 +174,11 @@ async function setImgPath() {
     const result = await dialog.showOpenDialog({
         properties: ['openDirectory', 'dontAddToRecent'],
     });
-    console.log('Result: ', result);
     if (result.filePaths.length == 0) {
-        console.log('No directory selected.');
+        log.info('No directory selected.');
         return false;
     } else {
-        console.log('Directory selected: ', result.filePaths[0]);
+        log.info('Directory selected: ', result.filePaths[0]);
         changeConfig('img_path', result.filePaths[0]);
         return true;
     }
@@ -183,17 +188,17 @@ function renameImg(event, oldName, newName) {
     const imgPath = getImgPath();
     const files = getImgList();
     if (files.includes(newName)) {
-        console.log('Image already exists: ', newName);
+        log.info('Image already exists: ', newName);
         return false;
     }
     const oldPath = path.join(imgPath, oldName);
     const newPath = path.join(imgPath, newName);
     try {
         fs.renameSync(oldPath, newPath);
-        console.log('Rename image success: ', oldName, '->', newName);
+        log.info('Rename image success: ', oldName, '->', newName);
         return true;
     } catch (err) {
-        console.log('Rename image failed: ', err);
+        log.error('Rename image failed: ', err);
         return false;
     }
 }
@@ -207,10 +212,8 @@ function copyImg(event, imgName) {
     const imgPath = getImgPath();
     const imgSrc = path.join(imgPath, imgName);
     const img = nativeImage.createFromPath(imgSrc);
-    console.log('Image: ', img);
     clipboard.writeImage(img);
-    console.log('Clipboard: ', clipboard.readImage());
-    console.log('Copy image success: ', imgSrc);
+    log.info('Copy image success: ', imgSrc);
 }
 
 async function ocrImg(event, imgNames) {
@@ -223,9 +226,9 @@ async function ocrImg(event, imgNames) {
     let resultStrs = [];
     for (const imgName of imgNames) {
         const imgSrc = path.join(imgPath, imgName);
-        console.log('OCR image: ', imgSrc);
+        log.info('OCR image: ', imgSrc);
         const results = (await ocr.flush({ image_path: imgSrc })).data;
-        console.log('OCR result: ', results);
+        log.info('OCR result: ', results);
 
         let resultStr = '';
         if (results != null) {
@@ -280,13 +283,10 @@ function filterImageList(event, filterType = 'all', filterText = '') {
 
     const filterTextLower = filterTextLowerTemp.split('').filter(character => /^[a-z]$/.test(character)).join('');
     const filterTextUpper = filterTextLower.toUpperCase();
-    console.log('Filter text lower: ', filterTextLower);
-    console.log('Filter text upper: ', filterTextUpper);
-
     let filterTextsSimplified = Chinese.t2s(filterTextLowerTemp).split('').filter(character => !/^[a-z\s]$/.test(character));
-    console.log('Filter text simplified: ', filterTextsSimplified);
     let filterTextsTraditional = Chinese.s2t(filterTextLowerTemp).split('').filter(character => !/^[a-z\s]$/.test(character));
-    console.log('Filter text traditional: ', filterTextsTraditional);
+
+    log.info('Filter text lower, upper, simplified, traditional: ', filterTextLower, filterTextUpper, filterTextsSimplified, filterTextsTraditional);
 
     // 搜索图片列表
     let imgListFiltered = [];
@@ -298,6 +298,7 @@ function filterImageList(event, filterType = 'all', filterText = '') {
         }
     });
     console.log(imgListFiltered);
+    log.info('Filtered image list length: ', imgListFiltered.length);
 
     return imgListFiltered;
 }
@@ -310,5 +311,8 @@ app.on('ready', () => {
 });
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') { app.quit(); }
+    if (process.platform !== 'darwin') {
+        log.info('Meme Searcher exited.');
+        app.quit();
+    }
 });
