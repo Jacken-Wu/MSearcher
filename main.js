@@ -37,6 +37,7 @@ function createWindow() {
     ipcMain.handle('get-size', getSize);
     ipcMain.handle('set-size', setSize);
     ipcMain.handle('ocr-img', ocrImg);
+    ipcMain.handle('renderer-log', rendererLog);
     // ipcMain.handle('test', () => {return __dirname});
     ipcMain.on('menu-click', (event, arg) => { menu.popup({ x: arg.x, y: arg.y }) });
 
@@ -66,6 +67,7 @@ function createWindow() {
 }
 
 function initConfig() {
+    log.info('Initializing config file...');
     // 检查meme_searcher文件夹是否存在，不存在则创建
     try {
         fs.accessSync(getUserdataPath(), fs.constants.F_OK)
@@ -95,9 +97,10 @@ function initConfig() {
 }
 
 function checkConfig() {
+    log.info('Checking config file...');
     try {
         fs.accessSync(configPath, fs.constants.F_OK)
-        log.info('Config file found.');
+        // log.info('Config file found.');
     } catch (err) {
         log.error('Config file not found, create a new one.');
         initConfig();
@@ -105,11 +108,12 @@ function checkConfig() {
 }
 
 function readConfig() {
+    log.info('Reading config file...');
     checkConfig();
     try {
         const data = fs.readFileSync(configPath, 'utf-8')
         const config = JSON.parse(data);
-        log.info(config);
+        // log.info('Read config file success: ', config);
         return config;
     } catch (err) {
         log.info('Read config file failed: ', err);
@@ -128,6 +132,7 @@ function changeConfig(key, value) {
 }
 
 function getImgPath() {
+    log.info('Reading image path...');
     // 获取图片文件夹路径
     const config = readConfig();
     if (config.img_path == undefined) {
@@ -135,7 +140,7 @@ function getImgPath() {
         return path.join(getUserdataPath(), 'img');
     }
     const imgPath = config.img_path;
-    log.info('Img_path: ', imgPath);
+    // log.info('Img_path: ', imgPath);
     return imgPath;
 }
 
@@ -158,6 +163,7 @@ function setSize(event, size) {
 }
 
 function getImgList() {
+    log.info('Reading images...');
     // 获取图片名列表
     const imgPath = getImgPath();
 
@@ -172,6 +178,7 @@ function getImgList() {
 }
 
 async function setImgPath() {
+    log.info('Setting image path...');
     // 选择图片文件夹
     const result = await dialog.showOpenDialog({
         properties: ['openDirectory', 'dontAddToRecent'],
@@ -180,30 +187,31 @@ async function setImgPath() {
         log.info('No directory selected.');
         return false;
     } else {
-        log.info('Directory selected: ', result.filePaths[0]);
+        log.info('Directory selected.');
         changeConfig('img_path', result.filePaths[0]);
         return true;
     }
 }
 
 function renameImg(event, oldName, newName) {
-    log.info('Rename image: ', oldName, '->', newName);
+    /* return: 0: 重命名失败，图片已存在；1: 重命名成功；2: 重命名失败，其他错误 */
+    log.info('Renaming image...');
     const imgPath = getImgPath();
     const files = getImgList();
     if (files.includes(newName)) {
-        log.info('Image already exists: ', newName);
-        return false;
+        log.info('Image already exists.');
+        return 0;
     }
     const oldPath = path.join(imgPath, oldName);
     const newPath = path.join(imgPath, newName);
-    log.info('Rename image (path): ', oldPath, '->', newPath);
+    // log.info('Rename image (path): ', oldPath, '->', newPath);
     try {
         fs.renameSync(oldPath, newPath);
-        log.info('Rename image success: ', oldName, '->', newName);
-        return true;
+        log.info('Rename image success.');
+        return 1;
     } catch (err) {
         log.error('Rename image failed: ', err);
-        return false;
+        return 2;
     }
 }
 
@@ -217,7 +225,7 @@ function copyImg(event, imgName) {
     const imgSrc = path.join(imgPath, imgName);
     const img = nativeImage.createFromPath(imgSrc);
     clipboard.writeImage(img);
-    log.info('Copy image success: ', imgSrc);
+    log.info('Copy image success.');
 }
 
 async function ocrImg(event, imgNames) {
@@ -230,9 +238,9 @@ async function ocrImg(event, imgNames) {
     let resultStrs = [];
     for (const imgName of imgNames) {
         const imgSrc = path.join(imgPath, imgName);
-        log.info('OCR image: ', imgSrc);
+        log.info('OCR start');
         const results = (await ocr.flush({ image_path: imgSrc })).data;
-        log.info('OCR result: ', results);
+        log.info('OCR over');
 
         let resultStr = '';
         if (results != null) {
@@ -305,6 +313,23 @@ function filterImageList(event, filterType = 'all', filterText = '') {
     log.info('Filtered image list length: ', imgListFiltered.length);
 
     return imgListFiltered;
+}
+
+function rendererLog(event, message, level = 'info', owner = 'renderer') {
+    switch (level) {
+        case 'info':
+            log.info('[' + owner + ']', message);
+            break;
+        case 'warn':
+            log.warn('[' + owner + ']', message);
+            break;
+        case 'error':
+            log.error('[' + owner + ']', message);
+            break;
+        default:
+            log.info('[' + owner + ']', message);
+            break;
+    }
 }
 
 app.on('ready', () => {

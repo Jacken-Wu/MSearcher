@@ -41,6 +41,7 @@ initUpdate();
 // -------初始化结束-------
 
 async function update(filterType = 'all', filterText = '') {
+    window.electronAPI.rendererLog('Updating with filterType [' + filterType + '] ...');
     // 清除选择
     lastDivSelecteds = null;
 
@@ -149,15 +150,18 @@ function imgSelect(event) {
 configButton.addEventListener('click', async () => {
     if (configMenu.style.display == 'block') {
         configMenu.style.display = 'none';
+        window.electronAPI.rendererLog('Config menu closed.');
     } else {
         changePathInput.value = await window.electronAPI.getImgPath();
         sizeSelector.value = await window.electronAPI.getSize();
         console.log(sizeSelector.value);
         configMenu.style.display = 'block';
+        window.electronAPI.rendererLog('Config menu opened.');
     }
 });
 
 changePathButton.addEventListener('click', async () => {
+    window.electronAPI.rendererLog('Changing image path...');
     await window.electronAPI.setImgPath();
     changePathInput.value = await window.electronAPI.getImgPath();
     await update(filterTypeBuffer, filterTextBuffer);
@@ -186,7 +190,7 @@ function changeImageSize(value) {
         default:
             sizeStyle.href = './style/imageWidth/imageWidth1500.css';
     }
-
+    window.electronAPI.rendererLog('Changed image size level to: ', value);
 }
 
 sizeSelector.addEventListener('change', async () => {
@@ -209,12 +213,15 @@ function contextMenu(event) {
 function closeBox(event) {
     if (!filterButton.contains(event.target) && filterMenu.style.display == 'block' && !filterMenu.contains(event.target)) {
         filterMenu.style.display = 'none';
+        window.electronAPI.rendererLog('Filter menu closed.');
     }
     if (!configButton.contains(event.target) && configMenu.style.display == 'block' && !configMenu.contains(event.target)) {
         configMenu.style.display = 'none';
+        window.electronAPI.rendererLog('Config menu closed.');
     }
     if (errorBox.style.display == 'block' && !errorBox.contains(event.target)) {
         errorBox.style.display = 'none';
+        window.electronAPI.rendererLog('Error box closed.');
     }
 }
 
@@ -230,8 +237,10 @@ document.body.addEventListener('contextmenu', (event) => {
 filterButton.addEventListener('click', () => {
     if (filterMenu.style.display == 'block') {
         filterMenu.style.display = 'none';
+        window.electronAPI.rendererLog('Filter menu closed.');
     } else {
         filterMenu.style.display = 'block';
+        window.electronAPI.rendererLog('Filter menu opened.');
     }
 });
 
@@ -253,6 +262,7 @@ filterUnfilteredButton.addEventListener('click', () => {
 // 搜索图片
 searchButton.addEventListener('click', (event) => {
     event.stopPropagation();
+    window.electronAPI.rendererLog('Searching images...');
     filterTextBuffer = searchInput.value;
     update(filterTypeBuffer, filterTextBuffer);
 });
@@ -266,25 +276,29 @@ searchInput.addEventListener('keydown', (event) => {
 
 // 重命名图片
 renameButton.addEventListener('click', async (event) => {
+    window.electronAPI.rendererLog('Renaming images...');
     event.stopPropagation();
     if (!lastDivSelecteds) {
+        window.electronAPI.rendererLog('Renaming failed, no image selected.', 'error');
         errorBox.getElementsByTagName('p')[0].textContent = '重命名失败，未选中表情包';
         errorBox.style.display = 'block';
         return;
     }
     if (renameInput.value === '' || removeSpecialChar(renameInput.value) === '') {
+        window.electronAPI.rendererLog('Renaming failed, new name is empty.', 'error');
         errorBox.getElementsByTagName('p')[0].textContent = '重命名失败，新名称不能为空';
         errorBox.style.display = 'block';
         return;
     }
     if (lastDivSelecteds.length == 1) {
+        window.electronAPI.rendererLog('Renaming single image...')
         const selectedImg = lastDivSelecteds[0].querySelector('img');
         const oldName = selectedImg.alt;
         const newNameNonSuffix = removeSpecialChar(renameInput.value);
         let newName = newNameNonSuffix + oldName.substring(oldName.lastIndexOf("."));
         console.log(oldName, newName);
         let isRenamed = await window.electronAPI.renameImg(oldName, newName);
-        if (!isRenamed) {
+        if (isRenamed == 0) {
             // 重命名失败的话，为图片添加数字后缀再次重命名
             let nameCount = 0;
             do {
@@ -292,11 +306,16 @@ renameButton.addEventListener('click', async (event) => {
                 isRenamed = await window.electronAPI.renameImg(oldName, newName);
                 console.log('Rename: ', oldName, newName, isRenamed);
                 nameCount += 1;
-            } while (!isRenamed);
+            } while (isRenamed == 0);
         }
-        update(filterTypeBuffer, filterTextBuffer);
+        if (isRenamed == 1) {
+            update(filterTypeBuffer, filterTextBuffer);
+        } else if (isRenamed == 2) {
+            errorBox.getElementsByTagName('p')[0].textContent = '重命名失败，其他错误';
+            errorBox.style.display = 'block';
+        }
     } else if (lastDivSelecteds.length > 1) {
-        console.log('批量重命名');
+        window.electronAPI.rendererLog('Renaming multiple images...')
         let nameCount = 0;
         const newNameNonSuffix = removeSpecialChar(renameInput.value);
         console.log(lastDivSelecteds);
@@ -305,13 +324,18 @@ renameButton.addEventListener('click', async (event) => {
             const selectedImg = div.querySelector('img');
             const oldName = selectedImg.alt;
             console.log(oldName);
-            let isRenamed = false;
+            let isRenamed = 0;
             do {
                 const newName = newNameNonSuffix + nameCount + oldName.substring(oldName.lastIndexOf("."));
                 isRenamed = await window.electronAPI.renameImg(oldName, newName);
                 console.log('Rename: ', oldName, newName, isRenamed);
                 nameCount += 1;
-            } while (!isRenamed);
+            } while (isRenamed == 0);
+            if (isRenamed == 2) {
+                errorBox.getElementsByTagName('p')[0].textContent = '重命名中断，请检查名字是否过长或存在其他问题';
+                errorBox.style.display = 'block';
+                break;
+            }
         }
         update(filterTypeBuffer, filterTextBuffer);
     }
@@ -361,7 +385,7 @@ window.electronAPI.menuOCRClick(async () => {
         let newName = newNameNonSuffix + oldName.substring(oldName.lastIndexOf("."));
         console.log(oldName, newName);
         let isRenamed = await window.electronAPI.renameImg(oldName, newName);
-        if (!isRenamed) {
+        if (isRenamed == 0) {
             // 重命名失败的话，为图片添加数字后缀再次重命名
             let nameCount = 0;
             do {
@@ -369,18 +393,24 @@ window.electronAPI.menuOCRClick(async () => {
                 isRenamed = await window.electronAPI.renameImg(oldName, newName);
                 console.log('Rename: ', oldName, newName, isRenamed);
                 nameCount += 1;
-            } while (!isRenamed);
+            } while (isRenamed == 0);
+            if (isRenamed == 2) {
+                ocrFailedNum += 1;
+            }
         }
     }
     update(filterTypeBuffer, filterTextBuffer);
+    window.electronAPI.rendererLog(`OCR rename: ${selectNum - ocrFailedNum} images success, ${ocrFailedNum} images failed`);
     errorBox.getElementsByTagName('p')[0].textContent = `重命名成功${selectNum - ocrFailedNum}张，失败${ocrFailedNum}张`;
     errorBox.style.display = 'block';
 });
 
 // 复制图片
 downloadImgButton.addEventListener('click', async (event) => {
+    window.electronAPI.rendererLog('Copying image...');
     event.stopPropagation();
     if (!lastDivSelecteds) {
+        window.electronAPI.rendererLog('Copying image failed, no image selected.', 'warn');
         errorBox.getElementsByTagName('p')[0].textContent = '复制失败，未选中表情包';
         errorBox.style.display = 'block';
         return;
@@ -390,6 +420,7 @@ downloadImgButton.addEventListener('click', async (event) => {
         const imgName = selectedImg.alt;
         window.electronAPI.copyImg(imgName);
     } else {
+        window.electronAPI.rendererLog('Copying multiple images failed, only one image can be copied at a time.', 'warn');
         errorBox.getElementsByTagName('p')[0].textContent = '复制失败，无法同时复制多个表情包';
         errorBox.style.display = 'block';
     }

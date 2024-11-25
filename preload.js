@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getSize: () => ipcRenderer.invoke('get-size'),
     setSize: (size) => ipcRenderer.invoke('set-size', size),
     ocrImg: (imgName) => ipcRenderer.invoke('ocr-img', imgName),
+    rendererLog: (message, level, owner) => ipcRenderer.invoke('renderer-log', message, level, owner),
     // test: () => ipcRenderer.invoke('test'),
 
     menuClick: (arg) => ipcRenderer.send('menu-click', arg),
