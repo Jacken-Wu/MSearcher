@@ -5,7 +5,7 @@
     width: 150px;
     right: 3px;
     z-index: 3;
-    background-color: rgb(187, 252, 255);
+    background-color: var(--config-box-color);
     border-radius: 7px;
     border-width: 2px;
     border-style: solid;
@@ -18,18 +18,18 @@
     display: block;
     position: relative;
     line-height: 30px;
-    background-color: rgb(218, 253, 255);
+    background-color: var(--config-box-color);
     border-width: 0.5px;
     border-bottom-style: dashed;
     user-select: none;
 }
 
 .filter-menu-button:hover {
-    background-color: rgb(198, 236, 239);
+    background-color: var(--hover-color);
 }
 
 .filter-menu-button:active {
-    background-color: rgb(180, 218, 220);
+    background-color: var(--active-color);
 }
 
 .filter-button-first {

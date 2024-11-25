@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
     <title>MSearcher</title>
+    <link rel="stylesheet" href="./style/root.css">
     <link rel="stylesheet" href="./style/image.css">
     <link rel="stylesheet" href="./style/topBar.css">
     <link rel="stylesheet" href="./style/filterMenu.css">
@@ -14,6 +15,7 @@
     <link rel="stylesheet" href="./style/errorBox.css">
     <link id="image-width" rel="stylesheet" href="./style/imageWidth/imageWidth1500.css">
     <link rel="stylesheet" href="./style/configMenu.css">
+    <link rel="stylesheet" href="./style/emojiBox.css">
 </head>
 
 <body>
@@ -36,6 +38,10 @@
         <button type="button" id="download-img" class="left-bottom-button">
             <div class="button-cover"></div>
         </button>
+        <button type="button" id="emoji-button" class="left-bottom-button">
+            <p>😉</p>
+            <div class="button-cover"></div>
+        </button>
         <div id="search-bar">
             <input type="text" id="search-input" class="input-box" placeholder="请输入关键字">
         </div>
@@ -51,6 +57,7 @@
             <div class="button-cover"></div>
         </button>
     </div>
+    <div id="emoji-box"></div>
     <div id="config-menu">
         <div id="change-path-bar">
             <input type="text" id="change-path-input" class="input-box" readonly>

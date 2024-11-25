@@ -1,0 +1,35 @@
+#emoji-box {
+    display: none;
+    position: fixed;
+    width: 90%;
+    bottom: 130px;
+    background-color: var(--config-box-color);
+    border-radius: 7px;
+    border-width: 2px;
+    border-style: solid;
+    z-index: 4;
+    user-select: none;
+}
+
+@media (min-width: 400px) {
+    #emoji-box {
+        width: 360px;
+    }
+}
+
+#emoji-box div {
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    padding: 2px;
+    background-color: var(--config-box-color);
+    border-radius: 5px;
+}
+
+#emoji-box div:hover {
+    background-color: var(--hover-color);
+}
+
+#emoji-box div:active {
+    background-color: var(--active-color);
+}

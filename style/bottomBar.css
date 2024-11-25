@@ -3,7 +3,7 @@
     position: fixed;
     width: 100%;
     height: 130px;
-    background-color: rgb(187, 252, 255);
+    background-color: var(--primary-color);
     bottom: 0;
     z-index: 2;
 }
@@ -37,8 +37,21 @@
 }
 
 #download-img {
-    top: 55px;
+    top: 90px;
     background-image: url(../assets/download_img_button.jpg);
+}
+
+#emoji-button {
+    top: 50px;
+}
+
+#emoji-button p {
+    margin: 0;
+    font-size: 23px;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 #search-bar {
@@ -48,7 +61,7 @@
     position: absolute;
     left: 44.2px;
     top: 10px;
-    background-color: rgb(187, 252, 255);
+    background-color: var(--primary-color);
 }
 
 #rename-bar {
@@ -57,8 +70,8 @@
     display: block;
     position: absolute;
     left: 44.2px;
-    top: 55px;
-    background-color: rgb(187, 252, 255);
+    top: 50px;
+    background-color: var(--primary-color);
 }
 
 .input-box {
@@ -78,7 +91,7 @@
     padding: 1px;
     border-radius: 6px;
     border-width: 2px;
-    background-color: rgb(218, 240, 255);
+    background-color: var(--config-button-color);
 }
 
 .config-button p {
@@ -92,5 +105,5 @@
 }
 
 #rename-button {
-    top: 55px;
+    top: 50px;
 }

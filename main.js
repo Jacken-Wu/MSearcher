@@ -42,7 +42,7 @@ function createWindow() {
     ipcMain.on('menu-click', (event, arg) => { menu.popup({ x: arg.x, y: arg.y }) });
 
     win.loadFile('./index.html');
-    // win.openDevTools();
+    win.openDevTools();
 
     const menu = Menu.buildFromTemplate([
         {

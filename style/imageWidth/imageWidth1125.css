@@ -1,9 +1,9 @@
 .img-div {
-    height: 152.5px;
+    height: calc(var(--basic-img-width) * 0.75 + var(--img-p-height));
 }
 
 .img-div .img-outer {
-    height: 112.5px;
+    height: calc(var(--basic-img-width) * 0.75);
 }
 
 @media (min-width: 337.5px) {

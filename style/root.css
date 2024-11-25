@@ -1,0 +1,9 @@
+:root {
+    --primary-color: rgb(187, 252, 255);
+    --config-box-color: rgb(218, 253, 255);
+    --hover-color: rgb(198, 236, 239);
+    --active-color: rgb(180, 218, 220);
+    --config-button-color: rgb(218, 240, 255);
+    --basic-img-width: 150px;
+    --img-p-height: 40px;
+}

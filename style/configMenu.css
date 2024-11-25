@@ -4,7 +4,7 @@
     height: 100px;
     width: 90%;
     bottom: 130px;
-    background-color: rgb(187, 252, 255);
+    background-color: var(--config-box-color);
     border-radius: 7px;
     border-width: 2px;
     border-style: solid;

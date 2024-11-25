@@ -16,12 +16,15 @@ const renameButton = document.getElementById('rename-button');
 const downloadImgButton = document.getElementById('download-img');
 const errorBox = document.getElementById('error-box');
 const sizeStyle = document.getElementById('image-width');
+const emojiButton = document.getElementById('emoji-button');
+const emojiBox = document.getElementById('emoji-box');
 
 // 测试代码
 // console.log(window.electronAPI.test());
 
 // -------初始化开始-------
 let lastDivSelecteds = null;
+let lastInputSelected = searchInput;
 
 let filterTypeBuffer = 'all';
 let filterTextBuffer = '';
@@ -29,6 +32,20 @@ let filterTextBuffer = '';
 filterMenu.style.display = 'none';
 errorBox.style.display = 'none';
 configMenu.style.display = 'none';
+emojiBox.style.display = 'none';
+
+function initEmojiBox() {
+    const emojiList = ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃', '🫠', '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', '🥲', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🫢', '🫣', '🤫', '🤔', '🫡', '🤐', '🤨', '😐', '😑', '😶', '🫥', '😏', '😒', '🙄', '😬', '🤥', '🫨', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '🥸', '😎', '🤓', '🧐', '😕', '🫤', '😟', '🙁', '😮', '😯', '😲', '😳', '🥺', '🥹', '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤', '😡', '😠', '🤬', '😈', '👿', '💀', '💩', '🤡', '👹', '👺', '👻', '👽', '👾', '🤖'];
+    emojiList.forEach(emoji => {
+        const emojiDiv = emojiBox.appendChild(document.createElement('div'));
+        emojiDiv.textContent = emoji;
+        emojiDiv.addEventListener('click', () => {
+            lastInputSelected.value += emoji;
+        });
+    });
+}
+
+initEmojiBox();
 
 async function initUpdate () {
     sizeSelector.value = await window.electronAPI.getSize();
@@ -67,7 +84,7 @@ async function update(filterType = 'all', filterText = '') {
         const imgName = img.slice(0, img.lastIndexOf('.'));
 
         // 创建图片元素并添加到容器中
-        const imgDivElement = document.createElement('div');
+        const imgDivElement = imgContainer.appendChild(document.createElement('div'));
         imgDivElement.classList.add('img-div');
         imgDivElement.id = 'img-div-' + idCounter;
         imgDivElement.addEventListener('click', imgSelect);
@@ -82,8 +99,6 @@ async function update(filterType = 'all', filterText = '') {
 
         const titleElement = imgDivElement.appendChild(document.createElement('p'));
         titleElement.textContent = imgName;
-
-        imgContainer.appendChild(imgDivElement);
 
         idCounter++;
     });
@@ -209,19 +224,19 @@ function contextMenu(event) {
     window.electronAPI.menuClick(arg);
 }
 
-// 关闭ErrorBox和菜单
+// 关闭Box和菜单
 function closeBox(event) {
     if (!filterButton.contains(event.target) && filterMenu.style.display == 'block' && !filterMenu.contains(event.target)) {
         filterMenu.style.display = 'none';
-        window.electronAPI.rendererLog('Filter menu closed.');
     }
     if (!configButton.contains(event.target) && configMenu.style.display == 'block' && !configMenu.contains(event.target)) {
         configMenu.style.display = 'none';
-        window.electronAPI.rendererLog('Config menu closed.');
     }
     if (errorBox.style.display == 'block' && !errorBox.contains(event.target)) {
         errorBox.style.display = 'none';
-        window.electronAPI.rendererLog('Error box closed.');
+    }
+    if (!emojiButton.contains(event.target) && emojiBox.style.display == 'block' && !emojiBox.contains(event.target)) {
+        emojiBox.style.display = 'none';
     }
 }
 
@@ -237,7 +252,6 @@ document.body.addEventListener('contextmenu', (event) => {
 filterButton.addEventListener('click', () => {
     if (filterMenu.style.display == 'block') {
         filterMenu.style.display = 'none';
-        window.electronAPI.rendererLog('Filter menu closed.');
     } else {
         filterMenu.style.display = 'block';
         window.electronAPI.rendererLog('Filter menu opened.');
@@ -272,6 +286,11 @@ searchInput.addEventListener('keydown', (event) => {
     if (event.keyCode === 13) {
         searchButton.click();
     }
+});
+
+searchInput.addEventListener('focus', () => {
+    lastInputSelected = searchInput;
+    window.electronAPI.rendererLog('Search input focused.');
 });
 
 // 重命名图片
@@ -348,6 +367,11 @@ renameInput.addEventListener('keydown', (event) => {
     }
 });
 
+renameInput.addEventListener('focus', () => {
+    lastInputSelected = renameInput;
+    window.electronAPI.rendererLog('Renaming input focused.');
+});
+
 window.electronAPI.menuRenameClick(() => {
     renameButton.click();
 });
@@ -360,7 +384,8 @@ function removeSpecialChar(inputStr) {
 }
 
 // OCR重命名图片
-window.electronAPI.menuOCRClick(async () => {
+window.electronAPI.menuOCRClick(async (event) => {
+    event.stopPropagation();
     if (!lastDivSelecteds) {
         errorBox.getElementsByTagName('p')[0].textContent = '重命名失败，未选中表情包';
         errorBox.style.display = 'block';
@@ -434,5 +459,15 @@ document.body.addEventListener('keydown', (event) => {
     closeBox(event);
     if (event.ctrlKey && event.key === 'c') {
         downloadImgButton.click();
+    }
+});
+
+// emoji 输入
+emojiButton.addEventListener('click', () => {
+    if (emojiBox.style.display == 'block') {
+        emojiBox.style.display = 'none';
+    } else {
+        emojiBox.style.display = 'block';
+        window.electronAPI.rendererLog('Emoji box opened.');
     }
 });
