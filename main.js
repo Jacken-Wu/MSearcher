@@ -42,7 +42,7 @@ function createWindow() {
     ipcMain.on('menu-click', (event, arg) => { menu.popup({ x: arg.x, y: arg.y }) });
 
     win.loadFile('./index.html');
-    win.openDevTools();
+    // win.openDevTools();
 
     const menu = Menu.buildFromTemplate([
         {
@@ -61,6 +61,12 @@ function createWindow() {
             label: 'OCR重命名',
             click: () => {
                 win.webContents.send('menu-ocr-click');
+            }
+        },
+        {
+            label: '在现有名称上修改名称',
+            click: () => {
+                win.webContents.send('menu-modify-click');
             }
         }
     ]);

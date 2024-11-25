@@ -2,19 +2,13 @@
     display: none;
     position: fixed;
     height: 100px;
-    width: 90%;
+    width: 360px;
     bottom: 130px;
     background-color: var(--config-box-color);
     border-radius: 7px;
     border-width: 2px;
     border-style: solid;
     z-index: 3;
-}
-
-@media (min-width: 400px) {
-    #config-menu {
-        width: 360px;
-    }
 }
 
 #change-path-bar {

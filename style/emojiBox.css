@@ -1,7 +1,7 @@
 #emoji-box {
     display: none;
     position: fixed;
-    width: 90%;
+    width: 360px;
     bottom: 130px;
     background-color: var(--config-box-color);
     border-radius: 7px;
@@ -9,12 +9,6 @@
     border-style: solid;
     z-index: 4;
     user-select: none;
-}
-
-@media (min-width: 400px) {
-    #emoji-box {
-        width: 360px;
-    }
 }
 
 #emoji-box div {

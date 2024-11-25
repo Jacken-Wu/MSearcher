@@ -297,6 +297,8 @@ searchInput.addEventListener('focus', () => {
 renameButton.addEventListener('click', async (event) => {
     window.electronAPI.rendererLog('Renaming images...');
     event.stopPropagation();
+    errorBox.getElementsByTagName('p')[0].textContent = '正在重命名，请稍候...';
+    errorBox.style.display = 'block';
     if (!lastDivSelecteds) {
         window.electronAPI.rendererLog('Renaming failed, no image selected.', 'error');
         errorBox.getElementsByTagName('p')[0].textContent = '重命名失败，未选中表情包';
@@ -358,6 +360,7 @@ renameButton.addEventListener('click', async (event) => {
         }
         update(filterTypeBuffer, filterTextBuffer);
     }
+    errorBox.style.display = 'none';
 });
 
 renameInput.addEventListener('keydown', (event) => {
@@ -384,8 +387,10 @@ function removeSpecialChar(inputStr) {
 }
 
 // OCR重命名图片
-window.electronAPI.menuOCRClick(async (event) => {
-    event.stopPropagation();
+window.electronAPI.menuOCRClick(async () => {
+    window.electronAPI.rendererLog('OCR renaming images...');
+    errorBox.getElementsByTagName('p')[0].textContent = '正在重命名，请稍候...';
+    errorBox.style.display = 'block';
     if (!lastDivSelecteds) {
         errorBox.getElementsByTagName('p')[0].textContent = '重命名失败，未选中表情包';
         errorBox.style.display = 'block';
@@ -428,6 +433,28 @@ window.electronAPI.menuOCRClick(async (event) => {
     window.electronAPI.rendererLog(`OCR rename: ${selectNum - ocrFailedNum} images success, ${ocrFailedNum} images failed`);
     errorBox.getElementsByTagName('p')[0].textContent = `重命名成功${selectNum - ocrFailedNum}张，失败${ocrFailedNum}张`;
     errorBox.style.display = 'block';
+});
+
+// 在现有名称的基础上修改图片名称
+window.electronAPI.menuModifyClick(async () => {
+    window.electronAPI.rendererLog('Modifying image name...');
+    if (!lastDivSelecteds) {
+        window.electronAPI.rendererLog('Modifying image name failed, no image selected.', 'error');
+        errorBox.getElementsByTagName('p')[0].textContent = '未选中表情包';
+        errorBox.style.display = 'block';
+        return;
+    }
+    if (lastDivSelecteds.length == 1) {
+        const selectedImg = lastDivSelecteds[0].querySelector('img');
+        const imgName = selectedImg.alt.slice(0, selectedImg.alt.lastIndexOf('.'));
+        renameInput.value = imgName;
+        renameButton.focus();
+        lastInputSelected = renameInput;
+    } else if (lastDivSelecteds.length > 1) {
+        window.electronAPI.rendererLog('Modifying image name failed, only one image can be modified at a time.', 'error');
+        errorBox.getElementsByTagName('p')[0].textContent = '选择了多张表情包，只能同时修改一张表情包的名称';
+        errorBox.style.display = 'block';
+    }
 });
 
 // 复制图片
