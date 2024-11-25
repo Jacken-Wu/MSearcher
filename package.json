@@ -30,7 +30,9 @@
       "!tools",
       "!build",
       "!img",
-      "!photoshop"
+      "!photoshop",
+      "!docs",
+      "!*.md"
     ],
     "extraFiles": [
       "tools"
