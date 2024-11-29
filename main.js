@@ -310,7 +310,13 @@ function filterImageList(event, filterType = 'all', filterText = '') {
     imgListFilteredTemp.forEach(img => {
         const imgLower = img.toLowerCase();
         const isFilteredEnglish = filterTextsLower.every(character => imgLower.includes(character));
-        const isFilteredChinese = filterTextsSimplified.every(character => img.includes(character)) || filterTextsTraditional.every(character => img.includes(character));
+        let isFilteredChinese = true;
+        for (let i = 0; i < filterTextsSimplified.length; i++) {
+            if (!img.includes(filterTextsSimplified[i]) && !img.includes(filterTextsTraditional[i])) {
+                isFilteredChinese = false;
+                break;
+            }
+        }
         if (isFilteredEnglish && isFilteredChinese) {
             imgListFiltered.push(img);
         }
