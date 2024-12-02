@@ -4,6 +4,7 @@ const fs = require('fs');
 const OCR = require('paddleocrjson');
 const Chinese = require('chinese-s2t');
 const log = require('electron-log');
+const { exec } = require('child_process');
 
 log.initialize();
 log.transports.file.maxSize = 1048576; // 1MB
@@ -257,7 +258,15 @@ async function ocrImg(event, imgNames) {
         resultStrs.push(resultStr);
     };
 
-    ocr.terminate();
+    await ocr.terminate();
+    const processName = 'PaddleOCR-json.exe'; // 替换为外部程序的名称
+    exec(`taskkill /IM ${processName} /F`, (err, stdout, stderr) => {
+    if (err) {
+        console.error(`Error killing process: ${err}`);
+    } else {
+        console.log(`Process ${processName} terminated.`);
+    }
+    });
 
     return resultStrs;
 }
