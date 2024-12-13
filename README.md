@@ -24,45 +24,52 @@
 
 ## 目录
 
-* [写在前面](#写在前面)
-* [功能](#功能)
-* [安装与更新](#安装与更新)
+* [这个项目是干啥的](#这个项目是干啥的)
+* [安装/更新与卸载](#安装更新与卸载)
 * [操作说明](#操作说明)
-* [卸载](#卸载)
 * [构建项目](#构建项目)
+* [待实现功能](#待实现功能)
 * [寄语](#寄语)
 * [新版本更新内容](#新版本更新内容)
 
-## 写在前面
+## 这个项目是干啥的
 
-这是一个非常简陋的项目，只是让你可以快速地根据图片名称搜索到对应的图片而已（还可以重命名图片）。
+这是一个非常简陋的项目，只是让你可以快速地整理和搜索你的 meme 图或表情包。
 
-本来是想写一个安卓APP，结果用electron写完后才发现不能打包成apk，尝试了cordova和Android Studio，都无法在短时间内完成程序的移植，也无法达到预期的效果，暂时放弃了。
+主要功能：
 
-## 功能
-
-* 可以通过图片名称搜索到对应的图片；
+* 可以通过图片的文件名称搜索到对应的图片；
 * 可以手动或通过 OCR 自动重命名图片；
 * 可以快速复制图片到系统剪贴板（部分格式图片无法复制）。
 
-## 安装与更新
+## 安装/更新与卸载
+
+### 安装
 
 从 [releases](https://github.com/Jacken-Wu/MSearcher/releases) 下载最新版本的安装包，解压并运行 exe 安装即可。
 
-更新同理，解压并运行 exe 覆盖安装即可。
+### 更新
+
+从 [releases](https://github.com/Jacken-Wu/MSearcher/releases) 下载最新版本的安装包，解压并运行 exe 覆盖安装即可。
+
+### 卸载
+
+* 在安装目录找到 `Uninstall MSearcher.exe` 文件，双击运行即可卸载；
+* 卸载完成后，记得删除`安装目录`, `C:\Users\<YourUserName>\AppData\Roaming\meme_searcher` 目录和 `C:\Users\<YourUserName>\AppData\Local\meme_searcher-updater` 目录。
 
 ## 操作说明
 
 [如何使用 MSearcher](./docs/how_to_use.md)
 
-## 卸载
-
-* 在安装目录找到 `Uninstall MSearcher.exe` 文件，双击运行即可卸载；
-* 卸载完成后，记得删除`安装目录`, `C:\Users\<YourUserName>\AppData\Roaming\meme_searcher` 目录和 `C:\Users\<YourUserName>\AppData\Local\meme_searcher-updater` 目录。
-
 ## 构建项目
 
 [Bulid](./docs/build.md)
+
+## 待实现功能
+
+* [ ] 递归显示子文件夹内图片
+* [ ] 多文件夹管理
+* [ ] Shift 多选图片
 
 ## 寄语
 
