@@ -125,6 +125,39 @@ function imgSelect(event) {
             lastDivSelecteds = [this];
             this.classList.add('selected');
         }
+    } else if (event.shiftKey && event.button === 0) {
+        // 按住Shift左键单击
+        if (lastDivSelecteds) {
+            if (lastDivSelecteds.length == 0) {
+                lastDivSelecteds = [this];
+                this.classList.add('selected');
+            } else {
+                const firstDivSelected = lastDivSelecteds[0];
+                const firstIdNum = parseInt(firstDivSelected.id.substring(8));
+                const lastIdNum = parseInt(this.id.substring(8));
+                console.log(this.id.slice(1, this.id.lastIndexOf('-')));
+                lastDivSelecteds.forEach(div => {
+                    div.classList.remove('selected');
+                });
+                lastDivSelecteds = [];
+                if (firstIdNum <= lastIdNum) {
+                    for (let i = firstIdNum; i <= lastIdNum; i++) {
+                        const div = document.getElementById('img-div-' + i);
+                        div.classList.add('selected');
+                        lastDivSelecteds.push(div);
+                    }
+                } else {
+                    for (let i = firstIdNum; i >= lastIdNum; i--) {
+                        const div = document.getElementById('img-div-' + i);
+                        div.classList.add('selected');
+                        lastDivSelecteds.push(div);
+                    }
+                }
+            }
+        } else {
+            lastDivSelecteds = [this];
+            this.classList.add('selected');
+        }
     } else if (event.button === 0) {
         // 左键单击
         if (lastDivSelecteds) {
