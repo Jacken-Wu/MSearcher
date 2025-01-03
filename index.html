@@ -16,6 +16,7 @@
     <link id="image-width" rel="stylesheet" href="./style/imageWidth/imageWidth1500.css">
     <link rel="stylesheet" href="./style/configMenu.css">
     <link rel="stylesheet" href="./style/emojiBox.css">
+    <link rel="stylesheet" href="./style/pathConfig.css">
 </head>
 
 <body>
@@ -59,12 +60,15 @@
     </div>
     <div id="emoji-box"></div>
     <div id="config-menu">
-        <div id="change-path-bar">
-            <input type="text" id="change-path-input" class="input-box" readonly>
+        <div id="path-config">
+            <div id="path-list"></div>
+            <div id="button-area">
+                <button id="add-path">添加</button>
+                <button id="remove-path">删除</button>
+                <button id="move-up">上移</button>
+                <button id="move-down">下移</button>
+            </div>
         </div>
-        <button type="button" id="change-path-button" class="config-button">
-            <p>选择路径</p>
-        </button>
         <select name="" id="img-size-select">
             <option value="1">75%</option>
             <option value="2">100%</option>
@@ -78,7 +82,8 @@
     <div id="error-box">
         <p>重命名失败，未选中表情包或新名称已存在</p>
     </div>
-    <script src="./renderer.js"></script>
+    <script src="./renderer/mianRenderer.js"></script>
+    <script src="./renderer/pathConfig.js"></script>
 </body>
 
 </html>

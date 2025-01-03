@@ -3,7 +3,9 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('electronAPI', {
     getImages: (filterType, filterTexts) => ipcRenderer.invoke('get-images', filterType, filterTexts),
     getImgPath: () => ipcRenderer.invoke('get-img-path'),
-    setImgPath: () => ipcRenderer.invoke('set-img-path'),
+    setImgPath: (imgPath) => ipcRenderer.invoke('set-img-path', imgPath),
+    addImgPath: () => ipcRenderer.invoke('add-img-path'),
+    removeImgPath: (imgPath) => ipcRenderer.invoke('remove-img-path', imgPath),
     renameImg: (imgDir, oldName, newName) => ipcRenderer.invoke('rename-img', imgDir, oldName, newName),
     copyImg: (imgName) => ipcRenderer.invoke('copy-img', imgName),
     getSize: () => ipcRenderer.invoke('get-size'),

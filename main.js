@@ -33,6 +33,8 @@ function createWindow() {
     ipcMain.handle('get-images', filterImageList);
     ipcMain.handle('get-img-path', getImgPath);
     ipcMain.handle('set-img-path', setImgPath);
+    ipcMain.handle('add-img-path', addImgPath);
+    ipcMain.handle('remove-img-path', removeImgPath);
     ipcMain.handle('rename-img', renameImg);
     ipcMain.handle('copy-img', copyImg);
     ipcMain.handle('get-size', getSize);
@@ -93,7 +95,7 @@ function initConfig() {
     }
     // 为config.json写入初始配置
     const config = {};
-    config.img_path = path.join(getUserdataPath(), 'img');
+    config.img_path = [path.join(getUserdataPath(), 'img')];
     config.size = '2';
     try {
         fs.writeFileSync(configPath, JSON.stringify(config), 'utf-8')
@@ -120,7 +122,11 @@ function readConfig() {
     try {
         const data = fs.readFileSync(configPath, 'utf-8')
         const config = JSON.parse(data);
-        // log.info('Read config file success: ', config);
+        // 检查config.json格式是否正确
+        if (!Array.isArray(config.img_path)) {
+            config.img_path = [config.img_path];
+        }
+        log.info('Read config file success: ', config);
         return config;
     } catch (err) {
         log.info('Read config file failed: ', err);
@@ -143,7 +149,7 @@ function getImgPath() {
     // 获取图片文件夹路径
     const config = readConfig();
     if (config.img_path == undefined) {
-        changeConfig('img_path', path.join(getUserdataPath(), 'img'));
+        changeConfig('img_path', [path.join(getUserdataPath(), 'img')]);
         return path.join(getUserdataPath(), 'img');
     }
     const imgPath = config.img_path;
@@ -189,17 +195,29 @@ function getImgList() {
     const imgPath = getImgPath();
 
     try {
-        const files = recursiveGetImg(imgPath);
-        log.info('Images length: ', files.length);
-        return files;
+        let images = [];
+        imgPath.forEach(dir => {
+            images.push(...recursiveGetImg(dir));
+        });
+        log.info('Images length: ', images.length);
+        return images;
     } catch (err) {
         log.error('Read images failed: ', err);
         return [];
     }
 }
 
-async function setImgPath() {
-    log.info('Setting image path...');
+async function setImgPath(event, paths) {
+    try {
+        changeConfig('img_path', paths);
+        log.info('Set image path success.');
+    } catch (err) {
+        log.error('Set image path failed: ', err);
+    }
+}
+
+async function addImgPath() {
+    log.info('Adding image path...');
     // 选择图片文件夹
     const result = await dialog.showOpenDialog({
         properties: ['openDirectory', 'dontAddToRecent'],
@@ -209,9 +227,18 @@ async function setImgPath() {
         return false;
     } else {
         log.info('Directory selected.');
-        changeConfig('img_path', result.filePaths[0]);
+        const config = readConfig();
+        config.img_path.push(result.filePaths[0]);
+        setImgPath(null, config.img_path);
         return true;
     }
+}
+
+async function removeImgPath(event, index) {
+    log.info('Removing image path...');
+    let config = readConfig();
+    config.img_path.splice(index, 1);
+    changeConfig('img_path', config.img_path);
 }
 
 function renameImg(event, imgDir, oldName, newName) {
@@ -239,9 +266,7 @@ function getUserdataPath() {
     return path.join(Roaming, 'meme_searcher');
 }
 
-function copyImg(event, imgName) {
-    const imgPath = getImgPath();
-    const imgSrc = path.join(imgPath, imgName);
+function copyImg(event, imgSrc) {
     const img = nativeImage.createFromPath(imgSrc);
     clipboard.writeImage(img);
     log.info('Copy image success.');
@@ -271,11 +296,11 @@ async function ocrImg(event, imgDirs, imgNames) {
     await ocr.terminate();
     const processName = 'PaddleOCR-json.exe'; // 替换为外部程序的名称
     exec(`taskkill /IM ${processName} /F`, (err, stdout, stderr) => {
-    if (err) {
-        console.error(`Error killing process: ${err}`);
-    } else {
-        console.log(`Process ${processName} terminated.`);
-    }
+        if (err) {
+            console.error(`Error killing process: ${err}`);
+        } else {
+            console.log(`Process ${processName} terminated.`);
+        }
     });
 
     return resultStrs;

@@ -4,7 +4,6 @@ const searchButton = document.getElementById('search-button');
 const configButton = document.getElementById('config-button');
 const configMenu = document.getElementById('config-menu');
 const changePathInput = document.getElementById('change-path-input');
-const changePathButton = document.getElementById('change-path-button');
 const sizeSelector = document.getElementById('img-size-select');
 const filterButton = document.getElementById('filter-button');
 const filterMenu = document.getElementById('filter-menu');
@@ -196,19 +195,11 @@ configButton.addEventListener('click', async () => {
         configMenu.style.display = 'none';
         window.electronAPI.rendererLog('Config menu closed.');
     } else {
-        changePathInput.value = await window.electronAPI.getImgPath();
         sizeSelector.value = await window.electronAPI.getSize();
         console.log(sizeSelector.value);
         configMenu.style.display = 'block';
         window.electronAPI.rendererLog('Config menu opened.');
     }
-});
-
-changePathButton.addEventListener('click', async () => {
-    window.electronAPI.rendererLog('Changing image path...');
-    await window.electronAPI.setImgPath();
-    changePathInput.value = await window.electronAPI.getImgPath();
-    await update(filterTypeBuffer, filterTextBuffer);
 });
 
 function changeImageSize(value) {
@@ -519,8 +510,13 @@ downloadImgButton.addEventListener('click', async (event) => {
     }
     if (lastDivSelecteds.length == 1) {
         const selectedImg = lastDivSelecteds[0].querySelector('img');
-        const imgName = selectedImg.alt;
-        window.electronAPI.copyImg(imgName);
+        let imgSrc = selectedImg.src;
+        imgSrc = decodeURIComponent(imgSrc);
+        // 去掉file:前缀
+        if (imgSrc.startsWith('file:///')) {
+            imgSrc = imgSrc.slice(8);
+        }
+        window.electronAPI.copyImg(imgSrc);
     } else {
         window.electronAPI.rendererLog('Copying multiple images failed, only one image can be copied at a time.', 'warn');
         errorBox.getElementsByTagName('p')[0].textContent = '复制失败，无法同时复制多个表情包';
