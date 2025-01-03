@@ -169,13 +169,27 @@ function setSize(event, size) {
     log.info('Change size level: ', size);
 }
 
+// 递归读取文件夹下所有文件
+function recursiveGetImg(dir, filesList = []) {
+    const files = fs.readdirSync(dir);
+    files.forEach(file => {
+        const filePath = path.join(dir, file);
+        if (fs.statSync(filePath).isDirectory()) {
+            recursiveGetImg(filePath, filesList);
+        } else {
+            filesList.push([dir, file]);
+        }
+    });
+    return filesList;
+}
+
 function getImgList() {
     log.info('Reading images...');
     // 获取图片名列表
     const imgPath = getImgPath();
 
     try {
-        const files = fs.readdirSync(imgPath)
+        const files = recursiveGetImg(imgPath);
         log.info('Images length: ', files.length);
         return files;
     } catch (err) {
@@ -200,17 +214,15 @@ async function setImgPath() {
     }
 }
 
-function renameImg(event, oldName, newName) {
+function renameImg(event, imgDir, oldName, newName) {
     /* return: 0: 重命名失败，图片已存在；1: 重命名成功；2: 重命名失败，其他错误 */
     log.info('Renaming image...');
-    const imgPath = getImgPath();
-    const files = getImgList();
-    if (files.includes(newName)) {
+    if (fs.existsSync(path.join(imgDir, newName))) {
         log.info('Image already exists.');
         return 0;
     }
-    const oldPath = path.join(imgPath, oldName);
-    const newPath = path.join(imgPath, newName);
+    const oldPath = path.join(imgDir, oldName);
+    const newPath = path.join(imgDir, newName);
     // log.info('Rename image (path): ', oldPath, '->', newPath);
     try {
         fs.renameSync(oldPath, newPath);
@@ -235,16 +247,14 @@ function copyImg(event, imgName) {
     log.info('Copy image success.');
 }
 
-async function ocrImg(event, imgNames) {
-    const imgPath = getImgPath();
-
+async function ocrImg(event, imgDirs, imgNames) {
     const ocr = new OCR('PaddleOCR-json.exe', [/* '-port=9985', '-addr=loopback' */], {
         cwd: path.join(__dirname.replace('\\resources\\app.asar', ''), 'tools/ocr'),
     }, false);
 
     let resultStrs = [];
-    for (const imgName of imgNames) {
-        const imgSrc = path.join(imgPath, imgName);
+    for (const [index, imgName] of imgNames.entries()) {
+        const imgSrc = path.join(imgDirs[index], imgName);
         log.info('OCR start');
         const results = (await ocr.flush({ image_path: imgSrc })).data;
         log.info('OCR over');
@@ -284,7 +294,7 @@ function filterImageList(event, filterType = 'all', filterText = '') {
             break;
         case 'filtered':
             imgList.forEach(img => {
-                const firstChar = img.charAt(0);
+                const firstChar = img[1].charAt(0);
                 const isUnfiltered = /^[a-zA-Z0-9-_]$/.test(firstChar);
                 if (!isUnfiltered) {
                     imgListFilteredTemp.push(img);
@@ -293,7 +303,7 @@ function filterImageList(event, filterType = 'all', filterText = '') {
             break;
         case 'unfiltered':
             imgList.forEach(img => {
-                const firstChar = img.charAt(0);
+                const firstChar = img[1].charAt(0);
                 const isUnfiltered = /^[a-zA-Z0-9-_]$/.test(firstChar);
                 if (isUnfiltered) {
                     imgListFilteredTemp.push(img);
@@ -317,11 +327,11 @@ function filterImageList(event, filterType = 'all', filterText = '') {
     // 搜索图片列表
     let imgListFiltered = [];
     imgListFilteredTemp.forEach(img => {
-        const imgLower = img.toLowerCase();
+        const imgLower = img[1].toLowerCase();
         const isFilteredEnglish = filterTextsLower.every(character => imgLower.includes(character));
         let isFilteredChinese = true;
         for (let i = 0; i < filterTextsSimplified.length; i++) {
-            if (!img.includes(filterTextsSimplified[i]) && !img.includes(filterTextsTraditional[i])) {
+            if (!img[1].includes(filterTextsSimplified[i]) && !img[1].includes(filterTextsTraditional[i])) {
                 isFilteredChinese = false;
                 break;
             }

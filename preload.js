@@ -4,11 +4,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getImages: (filterType, filterTexts) => ipcRenderer.invoke('get-images', filterType, filterTexts),
     getImgPath: () => ipcRenderer.invoke('get-img-path'),
     setImgPath: () => ipcRenderer.invoke('set-img-path'),
-    renameImg: (oldName, newName) => ipcRenderer.invoke('rename-img', oldName, newName),
+    renameImg: (imgDir, oldName, newName) => ipcRenderer.invoke('rename-img', imgDir, oldName, newName),
     copyImg: (imgName) => ipcRenderer.invoke('copy-img', imgName),
     getSize: () => ipcRenderer.invoke('get-size'),
     setSize: (size) => ipcRenderer.invoke('set-size', size),
-    ocrImg: (imgName) => ipcRenderer.invoke('ocr-img', imgName),
+    ocrImg: (imgDir, imgName) => ipcRenderer.invoke('ocr-img', imgDir, imgName),
     rendererLog: (message, level, owner) => ipcRenderer.invoke('renderer-log', message, level, owner),
     // test: () => ipcRenderer.invoke('test'),
 
