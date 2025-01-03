@@ -56,8 +56,7 @@
 
 ### 卸载
 
-* 在安装目录找到 `Uninstall MSearcher.exe` 文件，双击运行即可卸载；
-* 卸载完成后，记得删除`安装目录`, `C:\Users\<YourUserName>\AppData\Roaming\meme_searcher` 目录和 `C:\Users\<YourUserName>\AppData\Local\meme_searcher-updater` 目录。
+卸载完成后，记得删除 `C:\Users\<YourUserName>\AppData\Roaming\meme_searcher` 目录和 `C:\Users\<YourUserName>\AppData\Local\meme_searcher-updater` 目录。
 
 ## 操作说明
 
@@ -72,7 +71,8 @@
 * [x] 递归显示子文件夹内图片
 * [x] 多文件夹管理
 * [x] Shift 多选图片
-* [ ] 其他
+* [ ] 更新区分`已命名`和`未命名`图片的方式，现在是以判断文件名首字符是否为英文字母来判断图片是否经过命名，但这种判断方式会“误伤友军”
+* [ ] 快速 `禁用/启用` 文件夹
 
 ## 寄语
 
