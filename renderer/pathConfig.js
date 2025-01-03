@@ -46,7 +46,7 @@ removePathBtn.addEventListener('click', async () => {
 });
 
 async function savePathOrder() {
-    const pathDivs = pathListDiv.querySelectorAll('.path-item');    
+    const pathDivs = pathListDiv.querySelectorAll('.path-item');
     const pathList = [];
     pathDivs.forEach((pathDiv, index) => {
         pathList.push(pathDiv.innerText);

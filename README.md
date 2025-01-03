@@ -46,11 +46,13 @@
 
 ### 安装
 
-从 [releases](https://github.com/Jacken-Wu/MSearcher/releases) 下载最新版本的安装包，解压并运行 exe 安装即可。
+方式一：从 [releases](https://github.com/Jacken-Wu/MSearcher/releases) 下载最新版本的安装包，运行 exe 安装即可。
+
+方式二：从 [releases](https://github.com/Jacken-Wu/MSearcher/releases) 下载最新版本的免安装版本压缩包，解压即可用。
 
 ### 更新
 
-从 [releases](https://github.com/Jacken-Wu/MSearcher/releases) 下载最新版本的安装包，解压并运行 exe 覆盖安装即可。
+覆盖安装即可。
 
 ### 卸载
 
@@ -67,9 +69,10 @@
 
 ## 待实现功能
 
-* [ ] 递归显示子文件夹内图片
-* [ ] 多文件夹管理
-* [ ] Shift 多选图片
+* [x] 递归显示子文件夹内图片
+* [x] 多文件夹管理
+* [x] Shift 多选图片
+* [ ] 其他
 
 ## 寄语
 
@@ -80,6 +83,12 @@
 ![meme](./img/meme.jpg)
 
 ## 新版本更新内容
+
+### 1.5.0
+
+1. 新增递归显示子文件夹内图片功能；
+2. 新增 `Shift+鼠标左键` 多选图片功能；
+3. 新增多文件夹管理功能。
 
 ### 1.4.2
 
