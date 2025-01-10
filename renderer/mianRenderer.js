@@ -75,7 +75,10 @@ async function update(filterType = 'all', filterText = '') {
     let idCounter = 0;
     imgList.forEach(img => {
         // 获取图片名称
-        const imgName = img[1].slice(0, img[1].lastIndexOf('.'));
+        let imgName = img[1].slice(0, img[1].lastIndexOf('.'));
+        if (imgName.endsWith('_nmd')) {
+            imgName = imgName.slice(0, -4);
+        }
 
         // 创建图片元素并添加到容器中
         const imgDivElement = imgContainer.appendChild(document.createElement('div'));
@@ -342,14 +345,14 @@ renameButton.addEventListener('click', async (event) => {
             imgDir = imgDir.slice(8);
         }
         const newNameNonSuffix = removeSpecialChar(renameInput.value);
-        let newName = newNameNonSuffix + oldName.substring(oldName.lastIndexOf("."));
+        let newName = newNameNonSuffix + "_nmd" + oldName.substring(oldName.lastIndexOf("."));
         console.log(imgDir, oldName, newName);
         let isRenamed = await window.electronAPI.renameImg(imgDir, oldName, newName);
         if (isRenamed == 0) {
             // 重命名失败的话，为图片添加数字后缀再次重命名
             let nameCount = 0;
             do {
-                newName = newNameNonSuffix + nameCount + oldName.substring(oldName.lastIndexOf("."));
+                newName = newNameNonSuffix + nameCount + "_nmd" + oldName.substring(oldName.lastIndexOf("."));
                 isRenamed = await window.electronAPI.renameImg(imgDir, oldName, newName);
                 console.log('Rename: ', oldName, newName, isRenamed);
                 nameCount += 1;
@@ -379,7 +382,7 @@ renameButton.addEventListener('click', async (event) => {
             console.log(oldName);
             let isRenamed = 0;
             do {
-                const newName = newNameNonSuffix + nameCount + oldName.substring(oldName.lastIndexOf("."));
+                const newName = newNameNonSuffix + "_nmd" + nameCount + oldName.substring(oldName.lastIndexOf("."));
                 isRenamed = await window.electronAPI.renameImg(imgDir, oldName, newName);
                 console.log('Rename: ', oldName, newName, isRenamed);
                 nameCount += 1;
@@ -453,14 +456,14 @@ window.electronAPI.menuOCRClick(async () => {
             ocrFailedNum += 1;
             continue;
         }
-        let newName = newNameNonSuffix + oldName.substring(oldName.lastIndexOf("."));
+        let newName = newNameNonSuffix + "_nmd" + oldName.substring(oldName.lastIndexOf("."));
         console.log(oldName, newName);
         let isRenamed = await window.electronAPI.renameImg(imgDir, oldName, newName);
         if (isRenamed == 0) {
             // 重命名失败的话，为图片添加数字后缀再次重命名
             let nameCount = 0;
             do {
-                newName = newNameNonSuffix + nameCount + oldName.substring(oldName.lastIndexOf("."));
+                newName = newNameNonSuffix + nameCount + "_nmd" + oldName.substring(oldName.lastIndexOf("."));
                 isRenamed = await window.electronAPI.renameImg(imgDir, oldName, newName);
                 console.log('Rename: ', oldName, newName, isRenamed);
                 nameCount += 1;

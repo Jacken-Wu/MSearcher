@@ -45,7 +45,7 @@ function createWindow() {
     ipcMain.on('menu-click', (event, arg) => { menu.popup({ x: arg.x, y: arg.y }) });
 
     win.loadFile('./index.html');
-    // win.openDevTools();
+    win.openDevTools();
 
     const menu = Menu.buildFromTemplate([
         {
@@ -319,18 +319,20 @@ function filterImageList(event, filterType = 'all', filterText = '') {
             break;
         case 'filtered':
             imgList.forEach(img => {
-                const firstChar = img[1].charAt(0);
-                const isUnfiltered = /^[a-zA-Z0-9-_]$/.test(firstChar);
-                if (!isUnfiltered) {
+                // const firstChar = img[1].charAt(0);
+                // const isUnfiltered = /^[a-zA-Z0-9-_]$/.test(firstChar);
+                // if (!isUnfiltered) {
+                if (img[1].slice(0, img[1].lastIndexOf('.')).endsWith('_nmd')) {
                     imgListFilteredTemp.push(img);
                 }
             });
             break;
         case 'unfiltered':
             imgList.forEach(img => {
-                const firstChar = img[1].charAt(0);
-                const isUnfiltered = /^[a-zA-Z0-9-_]$/.test(firstChar);
-                if (isUnfiltered) {
+                // const firstChar = img[1].charAt(0);
+                // const isUnfiltered = /^[a-zA-Z0-9-_]$/.test(firstChar);
+                // if (isUnfiltered) {
+                if (!img[1].slice(0, img[1].lastIndexOf('.')).endsWith('_nmd')) {
                     imgListFilteredTemp.push(img);
                 }
             });
