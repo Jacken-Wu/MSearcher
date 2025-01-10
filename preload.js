@@ -19,4 +19,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     menuRenameClick: (func) => ipcRenderer.on('menu-rename-click', func),
     menuOCRClick: (func) => ipcRenderer.on('menu-ocr-click', func),
     menuModifyClick: (func) => ipcRenderer.on('menu-modify-click', func),
+    menuMarkClick: (func) => ipcRenderer.on('menu-mark-click', func),
+    menuUnmarkClick: (func) => ipcRenderer.on('menu-unmark-click', func),
 })

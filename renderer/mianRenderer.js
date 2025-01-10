@@ -490,7 +490,10 @@ window.electronAPI.menuModifyClick(async () => {
     }
     if (lastDivSelecteds.length == 1) {
         const selectedImg = lastDivSelecteds[0].querySelector('img');
-        const imgName = selectedImg.alt.slice(0, selectedImg.alt.lastIndexOf('.'));
+        let imgName = selectedImg.alt.slice(0, selectedImg.alt.lastIndexOf('.'));
+        if (imgName.endsWith('_nmd')) {
+            imgName = imgName.slice(0, -4);
+        }
         renameInput.value = imgName;
         renameButton.focus();
         lastInputSelected = renameInput;

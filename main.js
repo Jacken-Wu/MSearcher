@@ -45,7 +45,7 @@ function createWindow() {
     ipcMain.on('menu-click', (event, arg) => { menu.popup({ x: arg.x, y: arg.y }) });
 
     win.loadFile('./index.html');
-    win.openDevTools();
+    // win.openDevTools();
 
     const menu = Menu.buildFromTemplate([
         {
@@ -70,6 +70,18 @@ function createWindow() {
             label: '在现有名称上修改名称',
             click: () => {
                 win.webContents.send('menu-modify-click');
+            }
+        },
+        {
+            label: '标记为已命名',
+            click: () => {
+                win.webContents.send('menu-mark-click');
+            }
+        },
+        {
+            label: '标记为未命名',
+            click: () => {
+                win.webContents.send('menu-unmark-click');
             }
         }
     ]);
