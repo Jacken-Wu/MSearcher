@@ -532,6 +532,15 @@ document.body.addEventListener('keydown', (event) => {
     closeBox(event);
     if (event.ctrlKey && event.key === 'c') {
         downloadImgButton.click();
+    } else if (event.ctrlKey && event.key === 'a') {
+        event.preventDefault();
+        lastDivSelecteds.forEach(div => {
+            div.classList.remove('selected');
+        });
+        lastDivSelecteds = document.querySelectorAll('.img-div');
+        lastDivSelecteds.forEach(div => {
+            div.classList.add('selected');
+        });
     }
 });
 
