@@ -1,7 +1,7 @@
 #config-menu {
     display: none;
     position: fixed;
-    height: 180px;
+    height: 210px;
     width: 360px;
     bottom: 130px;
     background-color: var(--config-box-color);
@@ -13,7 +13,7 @@
 
 #path-config {
     position: absolute;
-    height: 120px;
+    height: 150px;
     width: calc(100% - 20px);
     top: 10px;
     left: 10px;
@@ -22,7 +22,7 @@
 #img-size-select {
     width: calc(100% - 110px);
     height: 30px;
-    top: 140px;
+    top: 170px;
     left: 10px;
     position: absolute;
 }

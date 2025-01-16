@@ -35,6 +35,7 @@ function createWindow() {
     ipcMain.handle('set-img-path', setImgPath);
     ipcMain.handle('add-img-path', addImgPath);
     ipcMain.handle('remove-img-path', removeImgPath);
+    ipcMain.handle('en-dis-img-path', enDisImgPath);
     ipcMain.handle('rename-img', renameImg);
     ipcMain.handle('copy-img', copyImg);
     ipcMain.handle('get-size', getSize);
@@ -209,7 +210,9 @@ function getImgList() {
     try {
         let images = [];
         imgPath.forEach(dir => {
-            images.push(...recursiveGetImg(dir));
+            if (!dir.endsWith(':d')) {
+                images.push(...recursiveGetImg(dir));
+            }
         });
         log.info('Images length: ', images.length);
         return images;
@@ -251,6 +254,20 @@ async function removeImgPath(event, index) {
     let config = readConfig();
     config.img_path.splice(index, 1);
     changeConfig('img_path', config.img_path);
+}
+
+async function enDisImgPath(event, index) {
+    const config = readConfig();
+    const imgPath = config.img_path[index];
+    if (imgPath.endsWith(':d')) {
+        config.img_path[index] = imgPath.slice(0, -2);
+        setImgPath(null, config.img_path);
+        log.info('Enable image path: ', imgPath);
+    } else {
+        config.img_path[index] = imgPath + ':d';
+        setImgPath(null, config.img_path);
+        log.info('Disable image path: ', imgPath);
+    }
 }
 
 function renameImg(event, imgDir, oldName, newName) {

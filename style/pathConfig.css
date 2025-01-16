@@ -18,6 +18,10 @@
     .path-item.selected {
         background-color: rgb(115, 180, 255);
     }
+
+    .path-item.disabled {
+        color: rgb(150, 150, 150);
+    }
 }
 
 #button-area {

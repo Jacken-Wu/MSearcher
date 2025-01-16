@@ -283,17 +283,17 @@ filterButton.addEventListener('click', () => {
 
 filterAllButton.addEventListener('click', () => {
     filterTypeBuffer = 'all';
-    update(filterTypeBuffer, filterTextBuffer);
+    update(filterTypeBuffer, '');
 });
 
 filterFilteredButton.addEventListener('click', () => {
     filterTypeBuffer = 'filtered';
-    update(filterTypeBuffer, filterTextBuffer);
+    update(filterTypeBuffer, '');
 });
 
 filterUnfilteredButton.addEventListener('click', () => {
     filterTypeBuffer = 'unfiltered';
-    update(filterTypeBuffer, filterTextBuffer);
+    update(filterTypeBuffer, '');
 });
 
 // 搜索图片
