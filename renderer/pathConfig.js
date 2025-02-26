@@ -46,7 +46,7 @@ async function configPathBoxUpdate() {
 addPathBtn.addEventListener('click', async () => {
     await window.electronAPI.addImgPath();
     await configPathBoxUpdate();
-    await update();
+    await update(filterTypeBuffer, filterTextBuffer);
 });
 
 removePathBtn.addEventListener('click', async () => {
@@ -57,7 +57,7 @@ removePathBtn.addEventListener('click', async () => {
     console.log('remove: ', index);
     await window.electronAPI.removeImgPath(index);
     await configPathBoxUpdate();
-    await update();
+    await update(filterTypeBuffer, filterTextBuffer);
 });
 
 async function savePathOrder() {
@@ -87,7 +87,7 @@ moveUpBtn.addEventListener('click', async () => {
     pathListDiv.insertBefore(currentDiv, prevDiv);
     await savePathOrder();
     lastPathItemSelected = document.querySelector('#path-' + (index - 1));
-    await update();
+    await update(filterTypeBuffer, filterTextBuffer);
 });
 
 moveDownBtn.addEventListener('click', async () => {
@@ -103,7 +103,7 @@ moveDownBtn.addEventListener('click', async () => {
     pathListDiv.insertBefore(nextDiv, currentDiv);
     await savePathOrder();
     lastPathItemSelected = document.querySelector('#path-' + (index + 1));
-    await update();
+    await update(filterTypeBuffer, filterTextBuffer);
 });
 
 enDisPathBtn.addEventListener('click', async () => {
@@ -114,5 +114,5 @@ enDisPathBtn.addEventListener('click', async () => {
     console.log('en-disable: ', index);
     await window.electronAPI.enDisImgPath(index);
     await configPathBoxUpdate();
-    await update();
+    await update(filterTypeBuffer, filterTextBuffer);
 });

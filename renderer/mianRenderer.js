@@ -306,14 +306,25 @@ searchButton.addEventListener('click', (event) => {
 
 searchInput.addEventListener('keydown', (event) => {
     event.stopPropagation();
-    if (event.keyCode === 13) {
+    if (event.keyCode === 13) {  // 回车键
         searchButton.click();
+    } else if (event.keyCode === 8) {  // 退格键
+        setTimeout(() => {
+            if (searchInput.value === '') {
+                update(filterTypeBuffer, '');
+            }
+        }, 0);
     }
 });
 
 searchInput.addEventListener('focus', () => {
     lastInputSelected = searchInput;
     window.electronAPI.rendererLog('Search input focused.');
+});
+
+searchInput.addEventListener('blur', () => {
+    filterTextBuffer = searchInput.value;
+    window.electronAPI.rendererLog('Search input blured. filterTextBuffer: ' + filterTextBuffer);
 });
 
 // 重命名图片
@@ -471,6 +482,8 @@ window.electronAPI.menuOCRClick(async () => {
             if (isRenamed == 2) {
                 ocrFailedNum += 1;
             }
+        } else if (isRenamed == 2) {
+            ocrFailedNum += 1;
         }
     }
     update(filterTypeBuffer, filterTextBuffer);
