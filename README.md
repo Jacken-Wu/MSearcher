@@ -64,7 +64,7 @@
 
 ## 构建项目
 
-[Bulid](./docs/build.md)
+[Build](./docs/build.md)
 
 ## 待实现功能 & 已知BUG
 
